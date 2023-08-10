@@ -36,7 +36,7 @@ export const RenderComponentWrapper = Component => props => {
     updateHover,
     styleIndex,
     MapActions,
-    isLoaded,
+    resourcesLoaded,
     containerId
   } = props;
 
@@ -115,7 +115,10 @@ export const RenderComponentWrapper = Component => props => {
     }
 
     return () => {
-      removeLayers(); removeSources();
+      if (!maplibreMap || !maplibreMap.loaded()) return;
+
+      removeLayers();
+      removeSources();
     };
   }, [maplibreMap, sources, layers, isActive, startLoading, stopLoading]);
 
@@ -207,6 +210,8 @@ export const RenderComponentWrapper = Component => props => {
     });
 
     return () => {
+      if (!maplibreMap || !maplibreMap.loaded()) return;
+
       funcs.forEach(({ action, callback, layerId }) => {
         if (layerId === "maplibreMap") {
           maplibreMap.off(action, callback);
@@ -350,6 +355,8 @@ export const RenderComponentWrapper = Component => props => {
     }, []);
 
     return () => {
+      if (!maplibreMap || !maplibreMap.loaded()) return;
+
       funcs.forEach(({ action, callback, layerId }) => {
         maplibreMap.off(action, layerId, callback);
       });
@@ -473,12 +480,20 @@ export const RenderComponentWrapper = Component => props => {
 
     maplibreMap.boxZoom.disable();
 
+    return () => {
+      div.removeEventListener("mousedown", mousedown);
+
+      if (!maplibreMap || !maplibreMap.loaded()) return;
+
+      maplibreMap.boxZoom.enable();
+    }
+
   }, [maplibreMap, layers, layer, onBoxSelect, isActive, containerId]);
 
 // ENSURE ALL SOURCES AND LAYERS HAVE COMPLETED LOADING
   React.useEffect(() => {
     if (!maplibreMap) return;
-    if (isLoaded) return;
+    if (resourcesLoaded) return;
 
     const sourcesLoaded = sources.reduce((a, c) => {
       return a && Boolean(maplibreMap.getSource(c.id));
@@ -491,7 +506,7 @@ export const RenderComponentWrapper = Component => props => {
 
     MapActions.setResourcesLoaded(layer.id, loaded);
 
-  }, [maplibreMap, layer.id, sources, layers, MapActions.setResourcesLoaded, loading, isLoaded]);
+  }, [maplibreMap, layer.id, sources, layers, MapActions.setResourcesLoaded, loading, resourcesLoaded]);
 
   return (
     <Component { ...props }

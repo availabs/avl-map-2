@@ -960,7 +960,7 @@ const AvlMap = allProps => {
                 isActive={ get(state, ["activeLayers", l.id], true) }
                 isVisible={ get(state, ["layerVisibility", l.id], true) }
                 isLoading={ Boolean(get(state, ["layersLoading", l.id, "loading"], false)) }
-                isLoaded={ Boolean(get(state, ["resourcesLoaded", l.id], false)) }
+                resourcesLoaded={ Boolean(get(state, ["resourcesLoaded", l.id], false)) }
                 maplibreMap={ state.maplibreMap }
                 updateHover={ updateHover }
                 containerId={ containerId.current }
