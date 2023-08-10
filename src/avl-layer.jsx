@@ -228,7 +228,7 @@ export const RenderComponentWrapper = Component => props => {
       Component = DefaultHoverComp,
       property = null,
       filterFunc = null,
-      pinnable = true,
+      isPinnable = false,
       zIndex = -1
     } = onHover;
 
@@ -306,7 +306,7 @@ export const RenderComponentWrapper = Component => props => {
           lngLat,
           Component,
           layer,
-          pinnable,
+          isPinnable,
           zIndex,
           data
         });

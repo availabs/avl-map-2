@@ -166,7 +166,8 @@ const InitialState = {
   hoverData: {
     data: [],
     lngLat: { lng: 0, lat: 0 },
-    hovering: false
+    hovering: false,
+    isPinnable: false
   },
   pinnedHoverComps: [],
   filterUpdate: { layerId: null },
@@ -741,9 +742,13 @@ const AvlMap = allProps => {
 // APPLY CLICK LISTENER TO MAP TO ALLOW PINNED HOVER COMPS
   React.useEffect(() => {
     if (!state.hoverData.hovering) return;
+    if (!state.hoverData.isPinnable) return;
+
     state.maplibreMap.on("click", pinHoverComp);
+
     return () => state.maplibreMap.off("click", pinHoverComp);
-  }, [state.maplibreMap, pinHoverComp, state.hoverData.hovering]);
+
+  }, [state.maplibreMap, pinHoverComp, state.hoverData.hovering, state.hoverData.isPinnable]);
 
 // APPLY POINTER STYLE TO CURSOR ON HOVER
   React.useEffect(() => {

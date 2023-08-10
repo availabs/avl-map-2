@@ -2,9 +2,7 @@ import React from "react"
 
 import get from "lodash.get"
 
-import { MultiLevelSelect } from "~/avl-map/uicomponents"
-
-import { useTheme } from "../uicomponents"
+import { MultiLevelSelect, useTheme } from "../uicomponents"
 
 export const LayerPanelContainer = ({ children }) => {
   const theme = useTheme();
