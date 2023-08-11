@@ -8,31 +8,21 @@ import { RenderComponentWrapper } from "./avl-layer"
 
 import {
   HoverCompContainer,
-  PinnedHoverComp
-} from "./components/HoverCompContainer"
-
-import LoadingIndicator from "./components/LoadingIndicator"
-
-import {
+  PinnedHoverComp,
   LayerSidebar,
   LayerSidebarContainer,
   LayerSidebarToggle,
-  PanelContainer
-} from "./components/LayerSidebar"
-import {
+  PanelContainer,
   LayersPanel,
   LayerPanelContainer,
   LayerPanel,
   LayerPanelHeaderContainer,
   LayerPanelHeader,
-  FilterContainer
-} from "./components/LayersPanel"
-
-import {
-  InfoBoxSidebar
-} from "./components/InfoBoxSidebar"
-
-import { Modal } from "./components/Modal"
+  FilterContainer,
+  LoadingIndicator,
+  InfoBoxSidebar,
+  Modal
+} from "./components"
 
 import {
   useSetSize
@@ -166,8 +156,7 @@ const InitialState = {
   hoverData: {
     data: [],
     lngLat: { lng: 0, lat: 0 },
-    hovering: false,
-    isPinnable: false
+    hovering: false
   },
   pinnedHoverComps: [],
   filterUpdate: { layerId: null },
@@ -284,7 +273,7 @@ const Reducer = (state, action) => {
     }
 
     case "hover-layer-move": {
-      const { data, layer, Component, pinnable, zIndex, ...rest } = payload;
+      const { data, layer, Component, isPinnable, zIndex, ...rest } = payload;
       return {
         ...state,
         hoverData: {
@@ -293,7 +282,7 @@ const Reducer = (state, action) => {
             { data,
               Component,
               layer,
-              pinnable,
+              isPinnable,
               zIndex,
             }
           ],
@@ -317,17 +306,26 @@ const Reducer = (state, action) => {
     case "pin-hover-comp": {
       if (!state.hoverData.hovering) return state;
 
-      const newPinned = {
-        id: getNewId(),
-        HoverComps: [...state.hoverData.data]
-          .filter(({ pinnable }) => pinnable)
-          .sort((a, b) => b.zIndex - a.zIndex),
-        ...payload,
-      };
-      if (newPinned.HoverComps.length) {
+      const { lngLat, marker } = payload;
+
+      const HoverComps = [...state.hoverData.data]
+        .filter(({ isPinnable }) => isPinnable)
+        .sort((a, b) => b.zIndex - a.zIndex);
+
+      if (HoverComps.length) {
+        marker.addTo(state.maplibreMap);
+        const newPinned = {
+          id: getNewId(),
+          lngLat,
+          marker,
+          HoverComps
+        }
         return {
           ...state,
-          pinnedHoverComps: [...state.pinnedHoverComps, newPinned],
+          pinnedHoverComps: [
+            ...state.pinnedHoverComps,
+            newPinned
+          ]
         };
       }
       return state;
@@ -335,7 +333,7 @@ const Reducer = (state, action) => {
     case "remove-pinned":
       return {
         ...state,
-        pinnedHoverComps: state.pinnedHoverComps.filter((phc) => {
+        pinnedHoverComps: state.pinnedHoverComps.filter(phc => {
           if (phc.id !== payload.id) return true;
           phc.marker.remove();
           return false;
@@ -631,15 +629,14 @@ const AvlMap = allProps => {
   const updateHover = React.useCallback(hoverData => {
     dispatch(hoverData);
   }, []);
-  const pinHoverComp = React.useCallback(
-    ({ lngLat }) => {
-      const marker = new maplibre.Marker().setLngLat(lngLat).addTo(state.maplibreMap);
-      dispatch({
-        type: "pin-hover-comp",
-        marker,
-        lngLat,
-      });
-    }, [state.maplibreMap]);
+  const pinHoverComp = React.useCallback(({ lngLat }) => {
+    const marker = new maplibre.Marker().setLngLat(lngLat);
+    dispatch({
+      type: "pin-hover-comp",
+      lngLat,
+      marker
+    });
+  }, []);
   const removePinnedHoverComp = React.useCallback(id => {
     dispatch({
       type: "remove-pinned",
@@ -739,17 +736,6 @@ const AvlMap = allProps => {
     }, [[], []]);
   }, [layers, state.dynamicLayers, state.activeLayers]);
 
-// APPLY CLICK LISTENER TO MAP TO ALLOW PINNED HOVER COMPS
-  React.useEffect(() => {
-    if (!state.hoverData.hovering) return;
-    if (!state.hoverData.isPinnable) return;
-
-    state.maplibreMap.on("click", pinHoverComp);
-
-    return () => state.maplibreMap.off("click", pinHoverComp);
-
-  }, [state.maplibreMap, pinHoverComp, state.hoverData.hovering, state.hoverData.isPinnable]);
-
 // APPLY POINTER STYLE TO CURSOR ON HOVER
   React.useEffect(() => {
     if (!state.maplibreMap) return;
@@ -801,6 +787,21 @@ const AvlMap = allProps => {
                                     };
     return [Component, rest];
   }, [rightSidebar]);
+
+// APPLY CLICK LISTENER TO MAP TO ALLOW PINNED HOVER COMPS
+  const isPinnable = React.useMemo(() => {
+    return activeLayers.reduce((a, c) => {
+      return a || get(c, ["onHover", "isPinnable"], false);
+    }, false);
+  }, [activeLayers]);
+
+  React.useEffect(() => {
+    if (!isPinnable) return;
+
+    state.maplibreMap.on("click", pinHoverComp);
+
+    return () => { state.maplibreMap.off("click", pinHoverComp); }
+  }, [state.maplibreMap, pinHoverComp, isPinnable]);
 
 // GET HOVER COMP DATA
   const { HoverComps, ...hoverData } = React.useMemo(() => {

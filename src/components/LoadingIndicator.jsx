@@ -4,7 +4,7 @@ import "./animations.css"
 
 import { useTheme } from "../uicomponents"
 
-const LoadingIndicator = ({ layer }) => {
+export const LoadingIndicator = ({ layer }) => {
   const theme = useTheme();
   const {
     icon = "fa-solid fa-spinner",
@@ -26,4 +26,3 @@ const LoadingIndicator = ({ layer }) => {
     </div>
   )
 }
-export default LoadingIndicator;
