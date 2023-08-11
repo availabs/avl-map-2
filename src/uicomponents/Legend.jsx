@@ -34,7 +34,7 @@ const getScale = (type, domain, range) => {
   }
 }
 
-export const LegendContainer = ({ name, children }) => {
+export const LegendContainer = ({ name, title, children }) => {
   const theme = useTheme();
   return (
     <div className={ `p-1 sticky top-0 ${ theme.bg }` }>
@@ -43,7 +43,7 @@ export const LegendContainer = ({ name, children }) => {
           ${ theme.bgAccent2 } ${ theme.border }
         ` }
       >
-        <div>{ name }</div>
+        <div>{ name || title }</div>
         <div>{ children }</div>
       </div>
     </div>
