@@ -20,7 +20,6 @@ const DefaultHoverComp = props => {
         <span>...so sad...</span>
       </div>
       <div className="whitespace-pre-wrap">
-        DATA:<br />
         { JSON.stringify(props.data, null, 3) }
       </div>
     </div>
