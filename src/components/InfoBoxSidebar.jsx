@@ -3,9 +3,12 @@ import React from "react"
 import get from "lodash.get"
 
 import { HeaderButton } from "./LayersPanel"
-import { LegendContainer, Legend } from "./LegendPanel"
 
-import { useTheme } from "../uicomponents"
+import {
+  LegendContainer,
+  Legend,
+  useTheme
+} from "../uicomponents"
 
 export const InfoBoxSidebarContainer = ({ open, children }) => {
   const theme = useTheme();

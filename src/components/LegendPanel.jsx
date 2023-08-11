@@ -2,19 +2,7 @@ import React from "react"
 
 import get from "lodash.get"
 import isequal from "lodash.isequal"
-import {
-  range as d3range,
-  extent as d3extent,
-  nice as d3nice,
-  ticks as d3ticks
-} from "d3-array"
-import {
-  scaleQuantize,
-  scaleQuantile,
-  scaleThreshold,
-  scaleOrdinal
-} from "d3-scale"
-import { format as d3format } from "d3-format"
+import { range as d3range } from "d3-array"
 
 import { ColorRangesByType, ColorBar } from "../utils/colors"
 
@@ -22,122 +10,7 @@ import { MultiLevelSelect } from "../uicomponents"
 
 import { useTheme } from "../uicomponents"
 
-const getScale = (type, domain, range) => {
-  switch (type) {
-    case "quantize":
-      return scaleQuantize()
-        .domain(d3extent(domain))
-        .range(range)
-    case "quantile":
-      return scaleQuantile()
-        .domain(domain)
-        .range(range)
-    case "threshold":
-      return scaleThreshold()
-        .domain(domain)
-        .range(range)
-    case "ordinal":
-      return scaleOrdinal()
-        .domain(domain)
-        .range(range)
-  }
-}
 
-export const LegendContainer = ({ name, children }) => {
-  const theme = useTheme();
-  return (
-    <div className={ `p-1 sticky top-0 ${ theme.bg }` }>
-      <div className={ `p-1 ${ theme.bgAccent2 } border ${ theme.border } rounded pointer-events-auto` }>
-        <div>{ name }</div>
-        <div>{ children }</div>
-      </div>
-    </div>
-  )
-}
-const OrdinalLegend = ({ domain, range, format }) => {
-  const Scale = React.useMemo(() => {
-    return getScale("ordinal", domain, range);
-  }, [domain, range]);
-  const Format = React.useMemo(() => {
-    if (typeof format === "function") return format;
-    return d3format(format);
-  }, [format]);
-  return (
-    <div>
-      <div className="grid gap-1"
-        style={ {
-          gridTemplateColumns: `repeat(${ domain.length }, minmax(0, 1fr))`
-        } }
-      >
-        { domain.map(d => (
-            <ColorBar key={ d } colors={ [Scale(d)] } height={ 3 }/>
-          ))
-        }
-      </div>
-      <div className="grid gap-1 text-right"
-        style={ {
-          gridTemplateColumns: `repeat(${ domain.length }, minmax(0, 1fr))`
-        } }
-      >
-        { domain.map(d => <div key={ d } className="pr-1">{ d }</div>) }
-      </div>
-    </div>
-  )
-}
-const NonOrdinalLegend = ({ type, domain, range, format = ",d" }) => {
-  const Scale = React.useMemo(() => {
-    return getScale(type, domain, range);
-  }, [type, domain, range]);
-  const Format = React.useMemo(() => {
-    if (typeof format === "function") return format;
-    return d3format(format);
-  }, [format]);
-  return (
-    <div>
-      <ColorBar colors={ range } height={ 3 }/>
-      <LegendTicks type={ type }
-        scale={ Scale }
-        format={ Format }/>
-    </div>
-  )
-}
-export const Legend = ({ type, ...props }) => {
-  return (
-    type === "ordinal" ?
-      <OrdinalLegend { ...props }/> :
-      <NonOrdinalLegend type={ type } { ...props }/>
-  )
-}
-
-const LegendTicks = ({ type, scale, format }) => {
-  const size = scale.range().length;
-  return type === "threshold" ? (
-    <div className="flex text-left">
-      <div style={ { width: `${ 100 / size }%` } }/>
-      { scale.domain().map((d, i) => (
-          <div key={ d }
-            className="pl-1"
-            style={ { width: `${ 100 / size }%` } }
-          >
-            { format(d) }
-          </div>
-        ))
-      }
-    </div>
-  ) : (
-    <div className="flex text-right">
-      { scale.range().map((r, i) => (
-          <div key={ r }
-            className="pr-1"
-            style={ { width: `${ 100 / size }%` } }
-          >
-            { format(scale.invertExtent(r)[1]) }
-          </div>
-        ))
-      }
-    </div>
-  )
-}
 
 const Reducer = (state, update) => {
   const { action, ...payload } = update;
