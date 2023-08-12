@@ -112,6 +112,105 @@ const MapAction = ({ action, icon, MapActions }) => {
     </ActionButton>
   )
 }
+const ResetView = ({ MapActions, maplibreMap }) => {
+  const [bearing, setBearing] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!maplibreMap) return;
+    setBearing(maplibreMap.getBearing());
+  }, [maplibreMap]);
+
+  React.useEffect(() => {
+    if (!maplibreMap) return;
+    const func = e => {
+      setBearing(maplibreMap.getBearing());
+    }
+    maplibreMap.on("rotate", func);
+    return () => {
+      maplibreMap.off("rotate", func);
+    }
+  }, [maplibreMap]);
+
+  const resetView = React.useCallback(e => {
+    MapActions.resetView();
+  }, [MapActions.resetView]);
+
+  const theme = useTheme();
+
+  return (
+    <ActionButton onClick={ resetView }>
+      <span className={ `
+          fa-solid fa-arrow-up w-10 py-1 flex justify-center
+          ${ theme.textHighlightHover }
+        ` }
+        style={ { transform: `rotate(${ bearing }deg)` } }/>
+    </ActionButton>
+  )
+}
+const Navigationcontrols = ({ MapActions, maplibreMap }) => {
+  const [bearing, setBearing] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!maplibreMap) return;
+    setBearing(maplibreMap.getBearing());
+  }, [maplibreMap]);
+
+  React.useEffect(() => {
+    if (!maplibreMap) return;
+    const func = e => {
+      setBearing(maplibreMap.getBearing());
+    }
+    maplibreMap.on("rotate", func);
+    return () => {
+      maplibreMap.off("rotate", func);
+    }
+  }, [maplibreMap]);
+
+  const zoomIn = React.useCallback(e => {
+    if (!maplibreMap) return;
+    const current = maplibreMap.getZoom();
+    maplibreMap.zoomTo(current * 1.1);
+  }, [maplibreMap]);
+
+  const resetView = React.useCallback(e => {
+    MapActions.resetView();
+  }, [MapActions.resetView]);
+
+  const zoomOut = React.useCallback(e => {
+    if (!maplibreMap) return;
+    const current = maplibreMap.getZoom();
+    maplibreMap.zoomTo(current / 1.1);
+  }, [maplibreMap]);
+
+  const theme = useTheme();
+
+  return (
+    <div className={ `
+        flex flex-col cursor-pointer pointer-events-auto ${ theme.bg } rounded
+      ` }
+    >
+      <span onClick={ zoomIn }
+        className={ `
+          fa-solid fa-plus w-10 py-1 flex justify-center
+          ${ theme.textHighlightHover }
+        ` }/>
+      <div onClick={ resetView }
+        className={ `border-y ${ theme.border }` }
+      >
+        <span className={ `
+            fa-solid fa-arrow-up w-10 py-1 flex justify-center
+            ${ theme.textHighlightHover }
+          ` }
+          style={ { transform: `rotate(${ bearing }deg)` } }/>
+      </div>
+      <span onClick={ zoomOut }
+        className={ `
+          fa-solid fa-minus w-10 py-1 flex justify-center
+          ${ theme.textHighlightHover }
+        ` }/>
+    </div>
+  )
+}
 
 const LayerAction = ({ action, icon, layer, MapActions }) => {
   const onClick = React.useCallback(() => {
@@ -128,11 +227,7 @@ const LayerAction = ({ action, icon, layer, MapActions }) => {
 
 const DefaultMapActions = {
   "reset-view": {
-    Component: MapAction,
-    icon: "fa-solid fa-street-view",
-    action: ({ resetView }) => {
-      resetView();
-    }
+    Component: ResetView
   },
   "go-home": {
     Component: MapAction,
@@ -140,6 +235,9 @@ const DefaultMapActions = {
     action: ({ goHome }) => {
       goHome();
     }
+  },
+  "navigation-controls": {
+    Component: Navigationcontrols
   }
 }
 
@@ -456,7 +554,7 @@ const AvlMap = allProps => {
     leftSidebar = EmptyObject,
     rightSidebar = EmptyObject,
     legend = EmptyObject,
-    mapActions = ["go-home", "reset-view"],
+    mapActions = ["reset-view"],
     ...props
   } = allProps;
 
