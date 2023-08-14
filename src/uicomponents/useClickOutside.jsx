@@ -1,6 +1,6 @@
 import React from "react"
 
-import get from "lodash.get"
+import get from "lodash/get"
 
 export const useClickOutside = (ref, callback) => {
 

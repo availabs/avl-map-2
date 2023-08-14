@@ -1,7 +1,7 @@
 import React from "react"
 
-import get from "lodash.get"
-import isequal from "lodash.isequal"
+import get from "lodash/get"
+import isequal from "lodash/isequal"
 import { range as d3range } from "d3-array"
 
 import { ColorRangesByType, ColorBar } from "../utils/colors"

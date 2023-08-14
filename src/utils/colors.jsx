@@ -2,7 +2,7 @@ import React from "react"
 
 import colorbrewer from "colorbrewer"
 
-import get from "lodash.get"
+import get from "lodash/get"
 
 const ColorRanges = {};
 const ColorRangesByType = {};
