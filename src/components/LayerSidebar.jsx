@@ -1,6 +1,6 @@
 import React from "react"
 
-import get from "lodash.get"
+import get from "lodash/get"
 
 import LayersPanel from "./LayersPanel"
 import StylesPanel from "./StylesPanel"

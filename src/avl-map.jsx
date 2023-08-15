@@ -2,7 +2,7 @@ import React from "react"
 
 import maplibre from "maplibre-gl"
 
-import get from "lodash.get"
+import get from "lodash/get"
 
 import { RenderComponentWrapper } from "./avl-layer"
 

@@ -1,6 +1,6 @@
 import React from "react"
 
-import get from "lodash.get"
+import get from "lodash/get"
 
 const Init = props => ({
   topLeft: get(props, "startPos", [500, 500]),
