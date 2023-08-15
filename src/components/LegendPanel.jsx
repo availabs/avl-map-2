@@ -4,7 +4,11 @@ import get from "lodash/get"
 import isequal from "lodash/isEqual"
 import { range as d3range } from "d3-array"
 
-import { ColorRangesByType, ColorBar } from "../utils/colors"
+import {
+  capitalize,
+  ColorRangesByType,
+  ColorBar
+} from "../utils"
 
 import { MultiLevelSelect } from "../uicomponents"
 
@@ -14,18 +18,11 @@ const LegendPanel = ({ legend, MapActions }) => {
 
   const updateLegendType = React.useCallback(type => {
     MapActions.updateLegend({ ...legend, type });
-  }, [MapActions.updateLegend]);
+  }, [MapActions.updateLegend, legend]);
 
   const updateLegendRange = React.useCallback(range => {
     MapActions.updateLegend({ ...legend, range });
-  }, [MapActions.updateLegend]);
-
-  const {
-    type,
-    domain,
-    range,
-    format
-  } = legend;
+  }, [MapActions.updateLegend, legend]);
 
   const [open, setOpen] = React.useState(-1);
 
@@ -49,7 +46,7 @@ const LegendPanel = ({ legend, MapActions }) => {
 
       { Object.keys(ColorRangesByType).map((type, i) => (
           <ColorCategory key={ type } type={ type }
-            startSize={ range.length }
+            startSize={ legend.range.length }
             colors={ ColorRangesByType[type] }
             updateLegend={ updateLegendRange }
             isOpen={ open === i }
@@ -170,7 +167,7 @@ export const ColorCategory = props => {
         ` }
       >
         <span className="flex-1">
-          { type }
+          { capitalize(type) }
         </span>
         <span className="px-2 py-1 flex-0">
           <span className={ `fa fa-${ isOpen ? "minus" : "plus" }` } />
