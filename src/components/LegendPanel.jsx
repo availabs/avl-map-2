@@ -52,7 +52,9 @@ const LegendPanel = ({ legend, MapActions }) => {
             startSize={ range.length }
             colors={ ColorRangesByType[type] }
             updateLegend={ updateLegendRange }
-            isOpen={ open === i } setOpen={ setOpen } index={ i }
+            isOpen={ open === i }
+            setOpen={ setOpen }
+            index={ i }
             current={ legend.range }/>
         ))
       }
@@ -107,7 +109,7 @@ const SizeSelector = ({ size, sizes, setSize }) => {
   )
 }
 
-const ColorCategory = props => {
+export const ColorCategory = props => {
 
   const {
     type,
