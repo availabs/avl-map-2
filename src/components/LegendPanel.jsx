@@ -10,52 +10,15 @@ import { MultiLevelSelect } from "../uicomponents"
 
 import { useTheme } from "../uicomponents"
 
-
-
-const Reducer = (state, update) => {
-  const { action, ...payload } = update;
-  switch (action) {
-    case "update":
-      return {
-        ...state,
-        ...payload
-      }
-    default:
-      return state;
-  }
-}
-const Init = legend => {
-  return { ...legend };
-}
-
 const LegendPanel = ({ legend, MapActions }) => {
 
-  const [state, dispatch] = React.useReducer(Reducer, legend, Init);
+  const updateLegendType = React.useCallback(type => {
+    MapActions.updateLegend({ ...legend, type });
+  }, [MapActions.updateLegend]);
 
-  React.useEffect(() => {
-    dispatch({
-      action: "update",
-      size: legend.range.length,
-      ...legend
-    })
-  }, [legend]);
-
-  const updateState = React.useCallback((key, value) => {
-    dispatch({
-      action: "update",
-      [key]: value
-    })
-  }, []);
-
-  const updateLegendType = React.useCallback(t => {
-    const { type, ...legend } = state;
-    MapActions.updateLegend({ ...legend, type: t });
-  }, [MapActions.updateLegend, state]);
-
-  const updateLegendColors = React.useCallback(colors => {
-    const { range, ...legend } = state;
-    MapActions.updateLegend({ ...legend, range: colors });
-  }, [MapActions.updateLegend, state]);
+  const updateLegendRange = React.useCallback(range => {
+    MapActions.updateLegend({ ...legend, range });
+  }, [MapActions.updateLegend]);
 
   const {
     type,
@@ -88,8 +51,7 @@ const LegendPanel = ({ legend, MapActions }) => {
           <ColorCategory key={ type } type={ type }
             startSize={ range.length }
             colors={ ColorRangesByType[type] }
-            updateLegend={ updateLegendColors }
-            updateState={ updateState }
+            updateLegend={ updateLegendRange }
             isOpen={ open === i } setOpen={ setOpen } index={ i }
             current={ legend.range }/>
         ))
@@ -110,7 +72,7 @@ const LegendTypes = [
 const TypeSelector = ({ type, updateLegend }) => {
   const onChange = React.useCallback(t => {
     updateLegend(t);
-  }, [updateLegend])
+  }, [updateLegend]);
   return (
     <div className="flex items-center p-1">
       <div className="flex-0 mr-1">Type:</div>
@@ -152,7 +114,6 @@ const ColorCategory = props => {
     colors,
     startSize,
     updateLegend,
-    updateState,
     isOpen,
     setOpen,
     index,

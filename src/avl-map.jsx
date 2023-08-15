@@ -84,7 +84,7 @@ const DefaultRightSidebar = {
   }
 }
 
-const ActionButton = ({ children, onClick }) => {
+export const ActionButton = ({ children, onClick }) => {
   const theme = useTheme();
   return (
     <div onClick={ onClick }
