@@ -45,3 +45,12 @@ export const useSetSize = (ref, callback = null) => {
 
   return size;
 }
+
+export const capitalize = string => {
+  return string.split("\s+")
+    .map(word =>
+      word.split("")
+        .map((letter, i) => i === 0 ? letter.toUpperCase() : letter)
+        .join("")
+    ).join(" ")
+}
