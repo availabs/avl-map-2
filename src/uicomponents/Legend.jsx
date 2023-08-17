@@ -13,7 +13,7 @@ import { useTheme } from "../uicomponents"
 
 import { ColorBar } from "../utils/colors"
 
-const getScale = (type, domain, range) => {
+export const getScale = (type, domain, range) => {
   switch (type) {
     case "quantize":
       return scaleQuantize()

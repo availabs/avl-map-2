@@ -130,7 +130,7 @@ export const ColorCategory = props => {
       .reduce((a, c) => {
         const range = get(colors, [c, size], null);
         if (range) {
-          a.push(range);
+          a.push({ name: c, colors: range });
         }
         return a;
       }, [])
@@ -152,9 +152,9 @@ export const ColorCategory = props => {
     }
   }, [startSize, Sizes]);
 
-  const select = React.useCallback(colors => {
-    updateLegend(colors);
-  }, [updateLegend]);
+  // const select = React.useCallback((colors, name) => {
+  //   updateLegend(colors, name);
+  // }, [updateLegend]);
 
   const theme = useTheme();
 
@@ -180,10 +180,11 @@ export const ColorCategory = props => {
               sizes={ Sizes }
               setSize={ setSize }/>
 
-            { Colors.map((colors, i) => (
+            { Colors.map(({ name, colors }, i) => (
                 <ColorSelector key={ i }
+                  name={ name }
                   colors={ colors }
-                  select={ select }
+                  select={ updateLegend }
                   isActive={ isequal(current, colors) }/>
               ))
             }
@@ -194,10 +195,10 @@ export const ColorCategory = props => {
   )
 }
 
-const ColorSelector = ({ colors, select, isActive }) => {
+const ColorSelector = ({ colors, name, select, isActive }) => {
   const onClick = React.useCallback(() => {
-    select(colors);
-  }, [select, colors]);
+    select(colors, name);
+  }, [select, colors, name]);
   return (
     <div onClick={ onClick }
       className={ `
