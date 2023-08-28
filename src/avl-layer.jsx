@@ -5,6 +5,9 @@ import mapboxgl from "maplibre-gl"
 import { hasValue } from "./utils"
 import { useTheme } from "./uicomponents"
 
+import { PMTiles } from './pmtiles/index.ts';
+import { protocol } from './avl-map'
+
 const DefaultRenderComponent = ({ maplibreMap, layer, ...props }) => {
   return null;
 }
@@ -77,6 +80,14 @@ export const RenderComponentWrapper = Component => props => {
 
     sources.forEach(({ id, source }) => {
       if (!maplibreMap.getSource(id)) {
+        if(source?.url?.includes('.pmtiles')){
+            // this is so we share one instance across the JS code and the map renderer
+            const p = new PMTiles(source.url)
+            console.log('add pmtiles url to protocol', protocol,p , source.url )
+            
+            protocol.add(p);
+        }
+        console.log('add source', source)
         maplibreMap.addSource(id, source);
       }
     });
