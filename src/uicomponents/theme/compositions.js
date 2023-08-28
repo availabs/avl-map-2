@@ -4,7 +4,7 @@ export const button = [
 		Text: "rounded inline-flex items-center justify-center @transition disabled:cursor-not-allowed"
  	},
 // add bg colors
-	{ $default: "@bgHighlight",
+	{ $default: "@bgInput",
 		Text: "@bg"
  	},
 // add text colors
@@ -31,7 +31,7 @@ export const button = [
 		Danger: "disabled:hover:bg-white @bgDangerHover @textContrastHover",
 		Info: "disabled:hover:bg-white @bgInfoHover @textContrastHover",
 		Dark: "disabled:hover:bg-white @bgContrastHover @textContrastHover",
-		Text: "disabled:hover:bg-gray-100 @bgHighlightHover",
+		Text: "disabled:hover:bg-gray-100 @bgInputHover",
 	},
 // add sizing
 	{ $default: "@paddingBase @textBase",

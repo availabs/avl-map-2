@@ -4,6 +4,8 @@ import get from "lodash/get"
 import isequal from "lodash/isEqual"
 import { range as d3range } from "d3-array"
 
+import { BooleanSlider } from "../uicomponents"
+
 import {
   capitalize,
   ColorRangesByType,
@@ -28,6 +30,8 @@ const LegendPanel = ({ legend, MapActions }) => {
 
   const theme = useTheme();
 
+  const [reverseColors, setReverseColors] = React.useState(false);
+
   return (
     <div className="grid grid-cols-1 gap-1">
 
@@ -42,6 +46,13 @@ const LegendPanel = ({ legend, MapActions }) => {
         </div>
         <TypeSelector type={ legend.type }
           updateLegend={ updateLegendType }/>
+        <div className="p-1 flex">
+          <div>Reverse Colors:</div>
+          <div className="ml-1 flex-1">
+            <BooleanSlider value={ reverseColors }
+              onChange={ setReverseColors }/>
+          </div>
+        </div>
       </div>
 
       { Object.keys(ColorRangesByType).map((type, i) => (
@@ -52,7 +63,8 @@ const LegendPanel = ({ legend, MapActions }) => {
             isOpen={ open === i }
             setOpen={ setOpen }
             index={ i }
-            current={ legend.range }/>
+            current={ legend.range }
+            reverseColors={ reverseColors }/>
         ))
       }
 
