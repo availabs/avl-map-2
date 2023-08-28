@@ -1,7 +1,7 @@
 import React from "react"
 
 import get from "lodash/get"
-import isequal from "lodash/isEqual"
+import isEqual from "lodash/isEqual"
 import { range as d3range } from "d3-array"
 
 import { BooleanSlider } from "../uicomponents"
@@ -128,7 +128,8 @@ export const ColorCategory = props => {
     isOpen,
     setOpen,
     index,
-    current
+    current,
+    reverseColors = false
   } = props;
 
   const [size, setSize] = React.useState(startSize);
@@ -142,11 +143,11 @@ export const ColorCategory = props => {
       .reduce((a, c) => {
         const range = get(colors, [c, size], null);
         if (range) {
-          a.push({ name: c, colors: range });
+          a.push({ name: c, colors: reverseColors ? [...range].reverse() : range });
         }
         return a;
       }, [])
-  }, [colors, size]);
+  }, [colors, size, reverseColors]);
 
   const Sizes = React.useMemo(() => {
     const sizes = new Set();
@@ -163,10 +164,6 @@ export const ColorCategory = props => {
       setSize(startSize);
     }
   }, [startSize, Sizes]);
-
-  // const select = React.useCallback((colors, name) => {
-  //   updateLegend(colors, name);
-  // }, [updateLegend]);
 
   const theme = useTheme();
 
@@ -197,7 +194,8 @@ export const ColorCategory = props => {
                   name={ name }
                   colors={ colors }
                   select={ updateLegend }
-                  isActive={ isequal(current, colors) }/>
+                  isActive={ isEqual(current, colors) }
+                  reverseColors={ reverseColors }/>
               ))
             }
 
@@ -207,10 +205,12 @@ export const ColorCategory = props => {
   )
 }
 
-const ColorSelector = ({ colors, name, select, isActive }) => {
+const ColorSelector = ({ colors, name, select, isActive, reverseColors }) => {
+
   const onClick = React.useCallback(() => {
-    select(colors, name);
-  }, [select, colors, name]);
+    select(colors, name, reverseColors);
+  }, [select, colors, name, reverseColors]);
+
   return (
     <div onClick={ onClick }
       className={ `
