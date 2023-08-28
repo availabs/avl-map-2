@@ -40,15 +40,22 @@ const LegendPanel = ({ legend, MapActions }) => {
       </div>
 
       <div className={ `rounded ${ theme.bgAccent2 } border ${ theme.border }` }>
-        <div className="px-2 py-1">Current</div>
-        <div className="px-2 pb-2">
-          <ColorBar height={ 3 } colors={ legend.range }/>
+        <div className={ `border-b ${ theme.border }` }>
+          <div className="px-2 py-1">Current:</div>
+          <div className="px-2 pb-2">
+            <ColorBar height={ 3 } colors={ legend.range }/>
+          </div>
         </div>
-        <TypeSelector type={ legend.type }
-          updateLegend={ updateLegendType }/>
         <div className="p-1 flex items-center">
-          <div>Reverse Colors:</div>
-          <div className="ml-1 flex-1">
+          <div className="w-32 text-right">Type:</div>
+          <div className="flex-1 ml-1">
+            <TypeSelector type={ legend.type }
+              updateLegend={ updateLegendType }/>
+          </div>
+        </div>
+        <div className="p-1 flex items-center">
+          <div className="w-32 text-right">Reverse Colors:</div>
+          <div className="flex-1 ml-1">
             <BooleanSlider value={ reverseColors }
               onChange={ setReverseColors }/>
           </div>
@@ -85,18 +92,13 @@ const TypeSelector = ({ type, updateLegend }) => {
     updateLegend(t);
   }, [updateLegend]);
   return (
-    <div className="flex items-center p-1">
-      <div className="flex-0 mr-1">Type:</div>
-      <div className="flex-1">
-        <MultiLevelSelect
-          removable={ false }
-          options={ LegendTypes }
-          displayAccessor={ t => t.name }
-          valueAccessor={ t => t.value }
-          onChange={ onChange }
-          value={ type }/>
-      </div>
-    </div>
+    <MultiLevelSelect
+      removable={ false }
+      options={ LegendTypes }
+      displayAccessor={ t => t.name }
+      valueAccessor={ t => t.value }
+      onChange={ onChange }
+      value={ type }/>
   )
 }
 
