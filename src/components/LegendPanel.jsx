@@ -46,7 +46,7 @@ const LegendPanel = ({ legend, MapActions }) => {
         </div>
         <TypeSelector type={ legend.type }
           updateLegend={ updateLegendType }/>
-        <div className="p-1 flex">
+        <div className="p-1 flex items-center">
           <div>Reverse Colors:</div>
           <div className="ml-1 flex-1">
             <BooleanSlider value={ reverseColors }

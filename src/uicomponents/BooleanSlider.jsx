@@ -14,7 +14,11 @@ export const BooleanSlider = ({ value, onChange }) => {
         ${ theme.bgInput }
       ` }
     >
-      <div className="rounded flex-1 h-2 bg-gray-300 relative flex items-center">
+      <div className={ `
+          rounded h-2 relative flex flex-1 items-center
+          ${ theme.bgAccent2 }
+        ` }
+      >
         <div className={ `
             w-4 h-4 rounded absolute
             ${ Boolean(value) ? theme.bgHighlight : theme.bgAccent3 }
