@@ -5,9 +5,6 @@ import mapboxgl from "maplibre-gl"
 import { hasValue } from "./utils"
 import { useTheme } from "./uicomponents"
 
-import { PMTiles } from './pmtiles/index.ts';
-import { protocol } from './avl-map'
-
 const DefaultRenderComponent = ({ maplibreMap, layer, ...props }) => {
   return null;
 }
@@ -39,7 +36,8 @@ export const RenderComponentWrapper = Component => props => {
     styleIndex,
     MapActions,
     resourcesLoaded,
-    containerId
+    containerId,
+    Protocols
   } = props;
 
   const {
@@ -78,16 +76,12 @@ export const RenderComponentWrapper = Component => props => {
 
     setTimeout(stopLoading, 500);
 
-    sources.forEach(({ id, source }) => {
+    sources.forEach(({ id, source, protocol }) => {
       if (!maplibreMap.getSource(id)) {
-        if(source?.url?.includes('.pmtiles')){
-            // this is so we share one instance across the JS code and the map renderer
-            const p = new PMTiles(source.url)
-            console.log('add pmtiles url to protocol', protocol,p , source.url )
-            
-            protocol.add(p);
+        if (protocol in Protocols) {
+          const { sourceInit, Protocol } = Protocols[protocol];
+          sourceInit(Protocol, source, maplibreMap);
         }
-        console.log('add source', source)
         maplibreMap.addSource(id, source);
       }
     });
@@ -130,7 +124,7 @@ export const RenderComponentWrapper = Component => props => {
       removeLayers();
       removeSources();
     };
-  }, [maplibreMap, sources, layers, isActive, startLoading, stopLoading]);
+  }, [maplibreMap, sources, layers, Protocols, isActive, startLoading, stopLoading]);
 
 // CHECK FOR STYLE CHANGE
   const prevStyleIndex = React.useRef(styleIndex);
