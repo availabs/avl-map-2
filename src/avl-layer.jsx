@@ -315,6 +315,7 @@ export const RenderComponentWrapper = Component => props => {
           lngLat,
           Component,
           layer,
+          layerId,
           isPinnable,
           zIndex,
           data

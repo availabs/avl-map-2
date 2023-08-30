@@ -370,15 +370,16 @@ const Reducer = (state, action) => {
     }
 
     case "hover-layer-move": {
-      const { data, layer, Component, isPinnable, zIndex, ...rest } = payload;
+      const { data, layer, layerId, Component, isPinnable, zIndex, ...rest } = payload;
       return {
         ...state,
         hoverData: {
           data: [
-            ...state.hoverData.data.filter(d => d.layer.id !== layer.id),
+            ...state.hoverData.data.filter(d => d.layerId !== layerId),
             { data,
               Component,
               layer,
+              layerId,
               isPinnable,
               zIndex,
             }
@@ -1146,8 +1147,8 @@ const AvlMap = allProps => {
             project={ projectLngLat }
             id={ id } key={ id }
           >
-            { HoverComps.map(({ Component, data, layer }, i) => (
-                <Component key={ layer.id } isPinned
+            { HoverComps.map(({ Component, data, layer, layerId }) => (
+                <Component key={ layerId } isPinned
                   legend={ state.legend }
                   layer={ layer }
                   data={ data }
@@ -1173,8 +1174,8 @@ const AvlMap = allProps => {
 
       { !hoverData.hovering ? null :
         <HoverCompContainer { ...hoverData } { ...size } project={ projectLngLat }>
-          { HoverComps.map(({ Component, layer, ...rest }, i) =>
-              <Component key={ layer.id } layer={ layer } { ...rest }
+          { HoverComps.map(({ Component, layerId, ...rest }) =>
+              <Component key={ layerId } { ...rest }
                 legend={ state.legend }
                 maplibreMap={ state.maplibreMap }
                 MapActions={ MapActions }
