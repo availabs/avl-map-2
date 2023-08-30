@@ -412,7 +412,7 @@ const ValueContainer = props => {
   return (
     <div tabIndex={ -1 }
       className={ `
-        ${ theme.bgHighlight } rounded pl-1 pb-1 pr-2 flex flex-wrap
+        ${ theme.bgInput } rounded pl-1 pb-1 pr-2 flex flex-wrap
         focus:outline-1 focus:outline focus:outline-current
         hover:outline-1 hover:outline hover:outline-gray-300
       ` }

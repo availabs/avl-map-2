@@ -7,8 +7,8 @@ import { composeTheme, makeProxy } from "./utils"
 import { $compositions } from "./compositions"
 
 const LightBase = {
-  bgHighlight: "bg-white",
-  bgHighlightHover: "hover:bg-white",
+  bgInput: "bg-white",
+  bgInputHover: "hover:bg-white",
 
   bgContrast: "bg-gray-800",
   bgContrastHover: "hover:bg-gray-800",
@@ -81,6 +81,9 @@ const LightBase = {
 
   borderHighlight: "border-teal-500",
   borderHighlightHover: "hover:border-teal-500",
+
+  bgHighlight: "bg-teal-500",
+  bgHighlightHover: "hover:bg-teal-500",
 
   transition: "transition ease-in-out duration-150",
 
