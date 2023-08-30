@@ -391,7 +391,7 @@ const Reducer = (state, action) => {
     }
     case "hover-layer-leave": {
       const { layerId } = payload;
-      const data = state.hoverData.data.filter(d => d.layer.id !== layerId);
+      const data = state.hoverData.data.filter(d => d.layerId !== layerId);
       return {
         ...state,
         hoverData: {

@@ -335,7 +335,7 @@ export const RenderComponentWrapper = Component => props => {
       hoverleave(maplibreMap, layerId);
       updateHover({
         type: "hover-layer-leave",
-        layerId: layer.id
+        layerId
       });
     };
 
