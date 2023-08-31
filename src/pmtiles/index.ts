@@ -284,7 +284,7 @@ export class FetchSource implements Source {
   url: string;
 
   constructor(url: string) {
-    this.url = url.includes('localhost') ? 'http://'+url : url;
+    this.url = url.includes('localhost') ? 'http://'+url : 'https://'+url;
   }
 
   getKey() {
