@@ -1,7 +1,6 @@
 import React from "react"
 
 import maplibre from "maplibre-gl"
-import { Protocol } from './pmtiles/index.ts';
 
 import get from "lodash/get"
 
@@ -25,22 +24,15 @@ import {
   Modal
 } from "./components"
 
-import {
-  useSetSize
-} from "./utils"
-
+import { useSetSize } from "./utils"
 import { useTheme } from "./uicomponents"
 
 let idCounter = 0;
 const getNewId = () => `avl-thing-${ ++idCounter }`;
-export const protocol = new Protocol()
 
 const EmptyObject = {};
 
 export const DefaultStyles = [
-  // { name: "Blank Map",
-  //   style: "https://api.maptiler.com/maps/cfab42ac-61f1-49de-8efc-01ff718944bd/style.json?key=mU28JQ6HchrQdneiq6k9"
-  // },
   { name: "Dark",
     style: "https://api.maptiler.com/maps/dataviz-dark/style.json?key=mU28JQ6HchrQdneiq6k9"
   },
@@ -63,7 +55,8 @@ const DefaultMapOptions = {
   styles: DefaultStyles,
   attributionControl: false,
   logoPosition: "bottom-left",
-  navigationControl: "bottom-right"
+  navigationControl: "bottom-right",
+  protocols: []
 };
 
 const DefaultLeftSidebar = {
@@ -272,7 +265,8 @@ const InitialState = {
     name: "Unnamed Legend",
     isActive: false
   },
-  openedModals: []
+  openedModals: [],
+  Protocols: {}
 }
 const Reducer = (state, action) => {
   const { type, ...payload } = action;
@@ -376,15 +370,16 @@ const Reducer = (state, action) => {
     }
 
     case "hover-layer-move": {
-      const { data, layer, Component, isPinnable, zIndex, ...rest } = payload;
+      const { data, layer, layerId, Component, isPinnable, zIndex, ...rest } = payload;
       return {
         ...state,
         hoverData: {
           data: [
-            ...state.hoverData.data.filter(d => d.layer.id !== layer.id),
+            ...state.hoverData.data.filter(d => d.layerId !== layerId),
             { data,
               Component,
               layer,
+              layerId,
               isPinnable,
               zIndex,
             }
@@ -396,7 +391,7 @@ const Reducer = (state, action) => {
     }
     case "hover-layer-leave": {
       const { layerId } = payload;
-      const data = state.hoverData.data.filter(d => d.layer.id !== layerId);
+      const data = state.hoverData.data.filter(d => d.layerId !== layerId);
       return {
         ...state,
         hoverData: {
@@ -497,9 +492,9 @@ const Reducer = (state, action) => {
       const { legend, ...rest } = payload;
       return {
         ...state,
-        ...payload,
+        ...rest,
         legend: {
-          ...state.length,
+          ...state.legend,
           ...legend
         }
       };
@@ -581,6 +576,7 @@ const AvlMap = allProps => {
       navigationControl,
       accessToken,
       legend,
+      protocols = [],
       ...Options
     } = MapOptions.current;
 
@@ -591,7 +587,14 @@ const AvlMap = allProps => {
 
     maplibre.accessToken = accessToken;
 
-    maplibre.addProtocol("pmtiles", protocol.tile);
+    const Protocols = protocols.reduce((a, c) => {
+      const { type, protocolInit, ...rest } = c;
+      a[type] = {
+        ...rest,
+        Protocol: protocolInit(maplibre)
+      }
+      return a;
+    }, {});
 
     let styleIndex = 0;
 
@@ -613,7 +616,7 @@ const AvlMap = allProps => {
     });
 
     maplibreMap.once("load", (e) => {
-      dispatch({ type: "map-loaded", maplibreMap, mapStyles: styles, styleIndex, legend });
+      dispatch({ type: "map-loaded", maplibreMap, mapStyles: styles, styleIndex, legend, Protocols });
     });
 
     return () => maplibreMap.remove();
@@ -1077,7 +1080,8 @@ const AvlMap = allProps => {
                 layersLoading={ state.layersLoading }
                 loadingLayers={ loadingLayers }
                 filterUpdate={ state.filterUpdate }
-                openedModals={ state.openedModals }/>
+                openedModals={ state.openedModals }
+                Protocols={ state.Protocols }/>
             ))
           }
           <div className="absolute bottom-0 left-0 grid grid-cols-1 gap-4">
@@ -1143,8 +1147,8 @@ const AvlMap = allProps => {
             project={ projectLngLat }
             id={ id } key={ id }
           >
-            { HoverComps.map(({ Component, data, layer }, i) => (
-                <Component key={ layer.id } isPinned
+            { HoverComps.map(({ Component, data, layer, layerId }) => (
+                <Component key={ layerId } isPinned
                   legend={ state.legend }
                   layer={ layer }
                   data={ data }
@@ -1170,8 +1174,8 @@ const AvlMap = allProps => {
 
       { !hoverData.hovering ? null :
         <HoverCompContainer { ...hoverData } { ...size } project={ projectLngLat }>
-          { HoverComps.map(({ Component, layer, ...rest }, i) =>
-              <Component key={ layer.id } layer={ layer } { ...rest }
+          { HoverComps.map(({ Component, layerId, ...rest }) =>
+              <Component key={ layerId } { ...rest }
                 legend={ state.legend }
                 maplibreMap={ state.maplibreMap }
                 MapActions={ MapActions }
