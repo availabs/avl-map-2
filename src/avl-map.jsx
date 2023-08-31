@@ -38,9 +38,9 @@ export const protocol = new Protocol()
 const EmptyObject = {};
 
 export const DefaultStyles = [
-  { name: "Blank Map",
-    style: "https://api.maptiler.com/maps/cfab42ac-61f1-49de-8efc-01ff718944bd/style.json?key=mU28JQ6HchrQdneiq6k9"
-  },
+  // { name: "Blank Map",
+  //   style: "https://api.maptiler.com/maps/cfab42ac-61f1-49de-8efc-01ff718944bd/style.json?key=mU28JQ6HchrQdneiq6k9"
+  // },
   { name: "Dark",
     style: "https://api.maptiler.com/maps/dataviz-dark/style.json?key=mU28JQ6HchrQdneiq6k9"
   },
@@ -590,13 +590,8 @@ const AvlMap = allProps => {
     };
 
     maplibre.accessToken = accessToken;
-    //let protocol = new Protocol();
-    maplibre.addProtocol("pmtiles",protocol.tile);
 
-    // const mapStyles = styles.map(style => ({
-    //   imageUrl: getStaticImageUrl(style.style, { center: Options.center }),
-    //   ...style
-    // }));
+    maplibre.addProtocol("pmtiles", protocol.tile);
 
     let styleIndex = 0;
 
@@ -605,8 +600,6 @@ const AvlMap = allProps => {
       ...Options,
       style: styles[0].style
     });
-    
-
 
     if (navigationControl) {
       maplibreMap.addControl(new maplibre.NavigationControl(), navigationControl);
