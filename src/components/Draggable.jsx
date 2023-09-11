@@ -36,7 +36,7 @@ const Reducer = (state, action) => {
   }
 }
 
-export const Draggable = ({ padding = "1rem", dragHandle = null, children, ...props }) => {
+const Draggable = ({ padding = "1rem", dragHandle = null, children, ...props }) => {
   const [state, dispatch] = React.useReducer(Reducer, props, Init);
 
   const dragMove = React.useCallback(e => {
@@ -127,3 +127,4 @@ export const Draggable = ({ padding = "1rem", dragHandle = null, children, ...pr
     </div>
   )
 }
+export default Draggable;

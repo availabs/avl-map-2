@@ -34,21 +34,6 @@ export const getScale = (type, domain, range) => {
   }
 }
 
-export const LegendContainer = ({ name, title, children }) => {
-  const theme = useTheme();
-  return (
-    <div className={ `p-1 sticky top-0 ${ theme.bg }` }>
-      <div className={ `
-          p-1 relative border rounded pointer-events-auto
-          ${ theme.bgAccent2 } ${ theme.border }
-        ` }
-      >
-        <div>{ name || title }</div>
-        <div>{ children }</div>
-      </div>
-    </div>
-  )
-}
 const OrdinalLegend = ({ domain, range, format }) => {
   const Scale = React.useMemo(() => {
     return getScale("ordinal", domain, range);

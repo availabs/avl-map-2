@@ -1,8 +1,6 @@
 import React from "react"
 
-import "./animations.css"
-
-import { useTheme } from "../uicomponents"
+import { useTheme } from "../../uicomponents"
 
 export const LoadingIndicator = ({ layer }) => {
   const theme = useTheme();

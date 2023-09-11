@@ -1,6 +1,7 @@
 import React from "react"
 
 import { useTheme } from "../uicomponents"
+import { useComponentLibrary } from "./StyledComponents"
 
 const getTranslate = (pos, width, height) => {
 
@@ -22,11 +23,6 @@ const getTranslate = (pos, width, height) => {
     ${ yTrans }
   )`
 }
-
-// const getPinnedTranslateOld = ({ x, y }) => {
-//   const gap = 30;
-//   return `translate(${ x + gap }px, calc(${ y - 20 }px - 50%))`;
-// }
 
 const getPinnedTranslate = ({ x, y }, orientation) => {
 
@@ -80,7 +76,7 @@ const RemoveButton = ({ orientation, onClick, children }) => {
   )
 }
 
-export const PinnedHoverComp = ({ children, remove, id, lngLat, project, width, height }) => {
+export const PinnedHoverComponent = ({ children, remove, id, lngLat, project, width, height }) => {
 
   const pos = project(lngLat);
 
@@ -100,21 +96,22 @@ export const PinnedHoverComp = ({ children, remove, id, lngLat, project, width, 
 
   const theme = useTheme();
 
+  const { HoverComponentContainer } = useComponentLibrary();
+
   return (
     <>
       <div
         className={ `
-          absolute top-0 left-0 z-20 inline-block
-          rounded whitespace-nowrap hover-comp
-          pointer-events-auto shadow-lg
-          grid grid-cols-1 gap-1
+          absolute top-0 left-0 z-20
+          pointer-events-auto
         ` }
         style={ {
           transform: getTranslate(pos, width, height)
         } }
       >
-
-        { children }
+        <HoverComponentContainer>
+          { children }
+        </HoverComponentContainer>
 
         <RemoveButton orientation={ orientation }
           onClick={ doRemove }/>
@@ -128,18 +125,21 @@ export const PinnedHoverComp = ({ children, remove, id, lngLat, project, width, 
   )
 }
 
-export const HoverCompContainer = ({ children, lngLat, project, width, height }) => {
+export const HoverComponent = ({ children, lngLat, project, width, height }) => {
+  const { HoverComponentContainer } = useComponentLibrary();
   return (
     <div className={ `
-        absolute top-0 left-0 z-20 pointer-events-none
-        grid grid-cols-1 gap-1 shadow-lg
+        absolute top-0 left-0 z-20
+        pointer-events-none
       ` }
       style={ {
         transform: getTranslate(project(lngLat), width, height),
         transition: "transform 0.05s ease-out"
       } }
     >
-      { children }
+      <HoverComponentContainer>
+        { children }
+      </HoverComponentContainer>
     </div>
   )
 }
