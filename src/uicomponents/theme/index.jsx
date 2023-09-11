@@ -1,3 +1,6 @@
+export * from "./utils"
+export * from "./compositions"
+
 import React from "react"
 
 import { composeTheme, makeProxy } from "./utils"
