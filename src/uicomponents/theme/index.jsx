@@ -104,9 +104,10 @@ export const ThemeProvider = ({ theme, children }) => {
   )
 }
 export const ThemeUpdater = ({ themeUpdate, children }) => {
+  const theme = useTheme();
   const UpdatedTheme = React.useMemo(() => {
-    return { ...useTheme(), ...themeUpdate };
-  }, [themeUpdate]);
+    return { ...theme, ...themeUpdate };
+  }, [theme, themeUpdate]);
   return (
     <ThemeContext.Provider value={ UpdatedTheme }>
       { children }
