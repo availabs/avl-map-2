@@ -78,7 +78,7 @@ const LegendPanel = ({ legend, MapActions }) => {
     </div>
   )
 }
-export default LegendPanel
+export default LegendPanel;
 
 const LegendTypes = [
   { value: "quantize", name: "Quantize" },

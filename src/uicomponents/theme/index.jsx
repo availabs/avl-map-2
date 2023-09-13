@@ -1,3 +1,6 @@
+export * from "./utils"
+export * from "./compositions"
+
 import React from "react"
 
 import { composeTheme, makeProxy } from "./utils"
@@ -96,6 +99,17 @@ export const useTheme = () => React.useContext(ThemeContext);
 export const ThemeProvider = ({ theme, children }) => {
   return (
     <ThemeContext.Provider value={ theme }>
+      { children }
+    </ThemeContext.Provider>
+  )
+}
+export const ThemeUpdater = ({ themeUpdate, children }) => {
+  const theme = useTheme();
+  const UpdatedTheme = React.useMemo(() => {
+    return { ...theme, ...themeUpdate };
+  }, [theme, themeUpdate]);
+  return (
+    <ThemeContext.Provider value={ UpdatedTheme }>
       { children }
     </ThemeContext.Provider>
   )

@@ -6,22 +6,14 @@ import get from "lodash/get"
 
 import { RenderComponentWrapper } from "./avl-layer"
 
+import LayerSidebar from "./components/LayerSidebar"
+import InfoBoxSidebar from "./components/InfoBoxSidebar"
+
 import {
-  HoverCompContainer,
-  PinnedHoverComp,
-  LayerSidebar,
-  LayerSidebarContainer,
-  LayerSidebarToggle,
-  PanelContainer,
-  LayersPanel,
-  LayerPanelContainer,
-  LayerPanel,
-  LayerPanelHeaderContainer,
-  LayerPanelHeader,
-  FilterContainer,
-  LoadingIndicator,
-  InfoBoxSidebar,
-  Modal
+  HoverComponent,
+  PinnedHoverComponent,
+  Modal,
+  useComponentLibrary
 } from "./components"
 
 import { useSetSize } from "./utils"
@@ -30,6 +22,7 @@ import { useTheme } from "./uicomponents"
 let idCounter = 0;
 const getNewId = () => `avl-thing-${ ++idCounter }`;
 
+const EmptyArray = [];
 const EmptyObject = {};
 
 export const DefaultStyles = [
@@ -54,32 +47,17 @@ const DefaultMapOptions = {
   preserveDrawingBuffer: true,
   styles: DefaultStyles,
   attributionControl: false,
-  logoPosition: "bottom-left",
-  navigationControl: "bottom-right",
+  navigationControl: false,
   protocols: []
 };
 
 const DefaultLeftSidebar = {
   Component: LayerSidebar,
   startOpen: true,
-  Panels: ["LayersPanel", "StylePanel"],
-  SubComponents: {
-    LayerSidebarContainer: LayerSidebarContainer,
-    LayerSidebarToggle: LayerSidebarToggle,
-    PanelContainer: PanelContainer,
-    LayerPanelContainer: LayerPanelContainer,
-    LayersPanel: LayersPanel,
-    LayerPanel: LayerPanel,
-    LayerPanelHeaderContainer: LayerPanelHeaderContainer,
-    LayerPanelHeader: LayerPanelHeader,
-    FilterContainer: FilterContainer,
-  }
+  Panels: ["LayersPanel", "StylePanel", "LegendPanel"]
 }
 const DefaultRightSidebar = {
-  Component: InfoBoxSidebar,
-  SubComponents: {
-
-  }
+  Component: InfoBoxSidebar
 }
 
 export const ActionButton = ({ children, onClick }) => {
@@ -187,25 +165,28 @@ const Navigationcontrols = ({ MapActions, maplibreMap }) => {
         flex flex-col cursor-pointer pointer-events-auto ${ theme.bg } rounded
       ` }
     >
-      <span onClick={ zoomIn }
-        className={ `
-          fa-solid fa-plus w-10 py-1 flex justify-center
-          ${ theme.textHighlightHover }
-        ` }/>
-      <div onClick={ resetView }
-        className={ `border-y ${ theme.border }` }
-      >
+      <div onClick={ zoomIn }>
         <span className={ `
-            fa-solid fa-arrow-up w-10 py-1 flex justify-center
+            fa-solid fa-plus w-10 py-1 flex justify-center
             ${ theme.textHighlightHover }
-          ` }
+          ` }/>
+      </div>
+      <div onClick={ resetView }
+        className={ `
+          border-y ${ theme.border } w-10 py-1
+          flex justify-center
+          ${ theme.textHighlightHover }
+        ` }
+      >
+        <span className={ `fa-solid fa-arrow-up` }
           style={ { transform: `rotate(${ bearing }deg)` } }/>
       </div>
-      <span onClick={ zoomOut }
-        className={ `
-          fa-solid fa-minus w-10 py-1 flex justify-center
-          ${ theme.textHighlightHover }
-        ` }/>
+      <div onClick={ zoomOut }>
+        <span className={ `
+            fa-solid fa-minus w-10 py-1 flex justify-center
+            ${ theme.textHighlightHover }
+          ` }/>
+      </div>
     </div>
   )
 }
@@ -548,13 +529,13 @@ const AvlMap = allProps => {
   const {
     accessToken,
     mapOptions = EmptyObject,
-    layers,
-    layerProps,
+    layers = EmptyArray,
+    layerProps = EmptyObject,
     id,
     leftSidebar = EmptyObject,
     rightSidebar = EmptyObject,
     legend = EmptyObject,
-    mapActions = ["reset-view"],
+    mapActions = ["navigation-controls"],
     ...props
   } = allProps;
 
@@ -574,18 +555,10 @@ const AvlMap = allProps => {
     const {
       styles,
       navigationControl,
-      accessToken,
       legend,
       protocols = [],
       ...Options
     } = MapOptions.current;
-
-    if (!accessToken) {
-      console.error("A valid Mapbox access token is required.");
-      return;
-    };
-
-    maplibre.accessToken = accessToken;
 
     const Protocols = protocols.reduce((a, c) => {
       const { type, protocolInit, ...rest } = c;
@@ -864,14 +837,8 @@ const AvlMap = allProps => {
 // GET LEFT SIDEBAR OPTIONS
   const [LeftSidebar, leftSidebarOptions] = React.useMemo(() => {
     if (!leftSidebar) return [null, {}];
-    const { SubComponents: DefaultSubComponents } = DefaultLeftSidebar;
-    const { SubComponents = {} } = leftSidebar;
     const { Component, ...rest } = { ...DefaultLeftSidebar,
-                                      ...leftSidebar,
-                                      SubComponents: {
-                                        ...DefaultSubComponents,
-                                        ...SubComponents
-                                      }
+                                      ...leftSidebar
                                     };
     return [Component, rest];
   }, [leftSidebar]);
@@ -879,14 +846,8 @@ const AvlMap = allProps => {
 // GET RIGHT SIDEBAR OPTIONS
   const [RightSidebar, rightSidebarOptions] = React.useMemo(() => {
     if (!rightSidebar) return [null, {}];
-    const { SubComponents: DefaultSubComponents } = DefaultRightSidebar;
-    const { SubComponents = {} } = rightSidebar;
     const { Component, ...rest } = { ...DefaultRightSidebar,
-                                      ...rightSidebar,
-                                      SubComponents: {
-                                        ...DefaultSubComponents,
-                                        ...SubComponents
-                                      }
+                                      ...rightSidebar
                                     };
     return [Component, rest];
   }, [rightSidebar]);
@@ -1001,6 +962,10 @@ const AvlMap = allProps => {
   ]);
 
   const theme = useTheme();
+
+  const {
+    LoadingIndicator
+  } = useComponentLibrary();
 
   return (
     <div className={ `block relative w-full h-full max-w-full max-h-full overflow-visible ${ theme.text }` }>
@@ -1142,7 +1107,7 @@ const AvlMap = allProps => {
       </div>
 
       { state.pinnedHoverComps.map(({ HoverComps, data, id, ...hoverData }) => (
-          <PinnedHoverComp { ...hoverData } { ...size }
+          <PinnedHoverComponent { ...hoverData } { ...size }
             remove={ removePinnedHoverComp }
             project={ projectLngLat }
             id={ id } key={ id }
@@ -1168,12 +1133,12 @@ const AvlMap = allProps => {
                   openedModals={ state.openedModals }/>
               ))
             }
-          </PinnedHoverComp>
+          </PinnedHoverComponent>
         ))
       }
 
       { !hoverData.hovering ? null :
-        <HoverCompContainer { ...hoverData } { ...size } project={ projectLngLat }>
+        <HoverComponent { ...hoverData } { ...size } project={ projectLngLat }>
           { HoverComps.map(({ Component, layerId, ...rest }) =>
               <Component key={ layerId } { ...rest }
                 legend={ state.legend }
@@ -1193,7 +1158,7 @@ const AvlMap = allProps => {
                 openedModals={ state.openedModals }/>
             )
           }
-        </HoverCompContainer>
+        </HoverComponent>
       }
 
     </div>

@@ -2,30 +2,43 @@ import React from "react"
 
 import get from "lodash/get"
 
-import { HeaderButton } from "./LayersPanel"
+import { useComponentLibrary } from "./StyledComponents"
 
 import {
-  LegendContainer,
   Legend,
   useTheme
 } from "../uicomponents"
 
-export const InfoBoxSidebarContainer = ({ open, children }) => {
-  const theme = useTheme();
+const InfoBoxController = ({ Component, Header, startOpen = true, ...props }) => {
+
+  const [open, setOpen] = React.useState(startOpen);
+  const toggleOpen = React.useCallback(() => {
+    setOpen(prev => !prev);
+  }, []);
+
+  const {
+    InfoBoxContainer,
+    InfoBoxHeaderContainer,
+    InfoBoxContentContainer
+  } = useComponentLibrary();
+
   return (
-    <div className="relative h-full">
-      <div className={ `
-          w-96 ${ theme.bg } rounded pointer-events-auto
-          max-h-full h-fit scrollbar-sm overflow-auto
-        ` }
-      >
-        { children }
-      </div>
-    </div>
+      <InfoBoxContainer { ...props }>
+        { !Header ? null :
+          <InfoBoxHeaderContainer open={ open } toggleOpen={ toggleOpen }>
+            { typeof Header === "function" ? <Header { ...props }/> : Header }
+          </InfoBoxHeaderContainer>
+        }
+        { !open && Header ? null :
+          <InfoBoxContentContainer>
+            <Component { ...props }/>
+          </InfoBoxContentContainer>
+        }
+      </InfoBoxContainer>
   )
 }
 
-export const InfoBoxSidebar = allProps => {
+const InfoBoxSidebar = allProps => {
   const {
     activeLayers,
     legend,
@@ -41,6 +54,11 @@ export const InfoBoxSidebar = allProps => {
     }, [])
   }, [activeLayers]);
 
+  const {
+    InfoBoxSidebarContainer,
+    LegendContainer
+  } = useComponentLibrary();
+
   return (
     <InfoBoxSidebarContainer>
       { !legend.isActive ? null :
@@ -52,14 +70,9 @@ export const InfoBoxSidebar = allProps => {
         <div className={ `${ legend.isActive ? "px-1 pb-1" : "p-1" } grid grid-cols-1 gap-1` }>
           { LayersWithInfoBoxes.reduce((a, c) => {
               a.push(
-                ...c.infoBoxes.map(({ Component, Header, ...options }, i) => (
-                  <InfoBoxContainer key={ `${ c.id }-${ i }` }
-                    Header={ Header }
-                    { ...props } { ...options }
-                    layer={ c }
-                  >
-                    <Component { ...props } layer={ c }/>
-                  </InfoBoxContainer>
+                ...c.infoBoxes.map((options, i) => (
+                  <InfoBoxController key={ `${ c.id }-${ i }` }
+                    { ...props } { ...options } layer={ c }/>
                 ))
               )
               return a;
@@ -70,46 +83,4 @@ export const InfoBoxSidebar = allProps => {
     </InfoBoxSidebarContainer>
   )
 }
-
-const HeaderContainer = ({ open, toggleOpen, children }) => {
-  const theme = useTheme();
-  return (
-    <div onClick={ toggleOpen }
-      className={ `
-        p-1 font-bold flex ${ theme.bgAccent2 } rounded-t cursor-pointer
-        ${ open ? `border-b ${ theme.border }` : "rounded-b" }
-      ` }
-    >
-      <div className="flex-1">
-        { children }
-      </div>
-      <div>
-        <span className="px-2 py-1">
-          <span className={ `fa fa-${ open ? "minus" : "plus" }` } />
-        </span>
-      </div>
-    </div>
-  )
-}
-
-export const InfoBoxContainer = ({ Header = null, children, startOpen = true, ...props }) => {
-  const [open, setOpen] = React.useState(startOpen);
-  const toggleOpen = React.useCallback(() => {
-    setOpen(prev => !prev);
-  }, []);
-  const theme = useTheme();
-  return (
-    <div className={ `rounded border ${ theme.border }` }>
-      { !Header ? null :
-        <HeaderContainer open={ open } toggleOpen={ toggleOpen }>
-          { typeof Header === "function" ? <Header { ...props }/> : Header }
-        </HeaderContainer>
-      }
-      { !open ? null :
-        <div className="p-1">
-          { children }
-        </div>
-      }
-    </div>
-  )
-}
+export default InfoBoxSidebar;
