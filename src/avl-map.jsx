@@ -47,8 +47,7 @@ const DefaultMapOptions = {
   preserveDrawingBuffer: true,
   styles: DefaultStyles,
   attributionControl: false,
-  logoPosition: "bottom-left",
-  navigationControl: "bottom-right",
+  navigationControl: false,
   protocols: []
 };
 
@@ -166,25 +165,28 @@ const Navigationcontrols = ({ MapActions, maplibreMap }) => {
         flex flex-col cursor-pointer pointer-events-auto ${ theme.bg } rounded
       ` }
     >
-      <span onClick={ zoomIn }
-        className={ `
-          fa-solid fa-plus w-10 py-1 flex justify-center
-          ${ theme.textHighlightHover }
-        ` }/>
-      <div onClick={ resetView }
-        className={ `border-y ${ theme.border }` }
-      >
+      <div onClick={ zoomIn }>
         <span className={ `
-            fa-solid fa-arrow-up w-10 py-1 flex justify-center
+            fa-solid fa-plus w-10 py-1 flex justify-center
             ${ theme.textHighlightHover }
-          ` }
+          ` }/>
+      </div>
+      <div onClick={ resetView }
+        className={ `
+          border-y ${ theme.border } w-10 py-1
+          flex justify-center
+          ${ theme.textHighlightHover }
+        ` }
+      >
+        <span className={ `fa-solid fa-arrow-up` }
           style={ { transform: `rotate(${ bearing }deg)` } }/>
       </div>
-      <span onClick={ zoomOut }
-        className={ `
-          fa-solid fa-minus w-10 py-1 flex justify-center
-          ${ theme.textHighlightHover }
-        ` }/>
+      <div onClick={ zoomOut }>
+        <span className={ `
+            fa-solid fa-minus w-10 py-1 flex justify-center
+            ${ theme.textHighlightHover }
+          ` }/>
+      </div>
     </div>
   )
 }
@@ -533,7 +535,7 @@ const AvlMap = allProps => {
     leftSidebar = EmptyObject,
     rightSidebar = EmptyObject,
     legend = EmptyObject,
-    mapActions = ["reset-view"],
+    mapActions = ["navigation-controls"],
     ...props
   } = allProps;
 
