@@ -22,6 +22,7 @@ import { useTheme } from "./uicomponents"
 let idCounter = 0;
 const getNewId = () => `avl-thing-${ ++idCounter }`;
 
+const EmptyArray = [];
 const EmptyObject = {};
 
 export const DefaultStyles = [
@@ -526,8 +527,8 @@ const AvlMap = allProps => {
   const {
     accessToken,
     mapOptions = EmptyObject,
-    layers,
-    layerProps,
+    layers = EmptyArray,
+    layerProps = EmptyObject,
     id,
     leftSidebar = EmptyObject,
     rightSidebar = EmptyObject,
@@ -552,18 +553,10 @@ const AvlMap = allProps => {
     const {
       styles,
       navigationControl,
-      accessToken,
       legend,
       protocols = [],
       ...Options
     } = MapOptions.current;
-
-    if (!accessToken) {
-      console.error("A valid Mapbox access token is required.");
-      return;
-    };
-
-    maplibre.accessToken = accessToken;
 
     const Protocols = protocols.reduce((a, c) => {
       const { type, protocolInit, ...rest } = c;
