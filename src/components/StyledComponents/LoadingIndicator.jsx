@@ -9,16 +9,17 @@ export const LoadingIndicator = ({ layer }) => {
     color = theme.textHighlight
   } = layer.loadingIndicator;
   return (
-    <div className={ `w-64 h-12 flex items-center rounded-l ${ theme.bg } py-2 pr-2 pl-4` }
+    <div className={ `w-fit flex items-center rounded-l ${ theme.bg } p-2` }
       style={ {
         borderTopRightRadius: "2rem",
-        borderBottomRightRadius: "2rem"
+        borderBottomRightRadius: "2rem",
+        minWidth: "16rem"
       } }
     >
-      <div className="flex-1 font-bold">
+      <div className="flex-1 font-bold mr-4">
         { layer.name }
       </div>
-      <div style={ { fontSize: "2rem" } }>
+      <div className="flex items-center" style={ { fontSize: "2rem" } }>
         <span className={ `${ icon } ${ color } fa-spin` }/>
       </div>
     </div>

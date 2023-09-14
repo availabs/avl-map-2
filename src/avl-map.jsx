@@ -603,13 +603,13 @@ const AvlMap = allProps => {
     const layerState = {};
     const activeLayers = {};
     const resourcesLoaded = {};
+
     [...layers, ...state.dynamicLayers].forEach(l => {
       if (!l._initialized) {
         layerVisibility[l.id] = get(l, "startVisible", true);
         layerState[l.id] = get(l, "startState", {});
         activeLayers[l.id] = get(l, "startActive", true);
         resourcesLoaded[l.id] = false;
-        l._initialized = true;
         l.RenderComponent = RenderComponentWrapper(l.RenderComponent);
         function updateState(layerState) {
           dispatch({
@@ -619,6 +619,7 @@ const AvlMap = allProps => {
           })
         }
         l.updateState = updateState.bind(l);
+        l._initialized = true;
       }
     });
     dispatch({
@@ -1024,7 +1025,8 @@ const AvlMap = allProps => {
 
         <div className="flex-1 relative">
           { [...activeLayers].reverse().map((l, i) => (
-              <l.RenderComponent key={ l.id } layer={ l }
+              <l.RenderComponent key={ l.id }
+                layer={ l }
                 legend={ state.legend }
                 isActive={ get(state, ["activeLayers", l.id], true) }
                 isVisible={ get(state, ["layerVisibility", l.id], true) }

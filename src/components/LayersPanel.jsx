@@ -41,7 +41,7 @@ const DynamicDestroyButton = ({ destroyDynamicLayer }) => {
   )
 }
 
-const LayerPanelHeader = ({ layer, toggleOpen, open, MapActions, children }) => {
+const LayerPanelHeader = ({ layer, MapActions, children }) => {
   const deactivateLayer = React.useCallback(e => {
     e.stopPropagation();
     MapActions.deactivateLayer(layer.id);
@@ -180,15 +180,17 @@ const LayerPanel = ({ layer, MapActions, filterUpdate, ...props }) => {
     LayerPanelFilterContainer
   } = useComponentLibrary();
 
+  const isOpen = Boolean(open && Filters.length);
+
   return (
     <LayerPanelContainer>
       <LayerPanelHeaderContainer
         toggleOpen={ toggleOpen }
-        open={ open }
+        open={ isOpen }
       >
         <LayerPanelHeader layer={ layer } { ...props }
           MapActions={ MapActions }
-          open={ open }
+          open={ isOpen }
         >
           { get(layer, "toolbar", []).map((tool, i) => (
               <div key={ i } className={ i === 0 ? "" : "" }>
@@ -201,7 +203,7 @@ const LayerPanel = ({ layer, MapActions, filterUpdate, ...props }) => {
           }
         </LayerPanelHeader>
       </LayerPanelHeaderContainer>
-      <div className={ `${ open ? "block" : "h-0 overflow-hidden invisible" }` }>
+      <div className={ `${ isOpen ? "block" : "h-0 overflow-hidden invisible" }` }>
         { Filters.map(({ Filter, id, name, ...options }, i) => (
             <LayerPanelFilterContainer key={ id } name={ name }
               lastFilter={ i === Filters.length - 1 }

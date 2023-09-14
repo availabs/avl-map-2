@@ -50,13 +50,18 @@ export const RenderComponentWrapper = Component => props => {
 
   const updateLayerState = React.useCallback(state => {
     MapActions.updateLayerState(layer.id, state);
-  }, [MapActions.updateLayerState, layer.id])
+  }, [MapActions.updateLayerState, layer.id]);
+
   const startLayerLoading = React.useCallback(() => {
     MapActions.startLayerLoading(layer.id);
   }, [MapActions.startLayerLoading, layer.id]);
   const stopLayerLoading = React.useCallback(() => {
     MapActions.stopLayerLoading(layer.id);
   }, [MapActions.stopLayerLoading, layer.id]);
+
+  const setResourcesLoaded = React.useCallback(loaded => {
+    MapActions.setResourcesLoaded(layer.id, loaded);
+  }, [MapActions.setResourcesLoaded, layer.id]);
 
   const [layerVisibility, _setLayerVisibility] = React.useState({});
 
@@ -123,8 +128,12 @@ export const RenderComponentWrapper = Component => props => {
 
       removeLayers();
       removeSources();
+      setResourcesLoaded(false);
     };
-  }, [maplibreMap, sources, layers, Protocols, isActive, startLoading, stopLoading]);
+  }, [maplibreMap, sources, layers, Protocols, isActive,
+      startLoading, stopLoading, setResourcesLoaded
+    ]
+  );
 
 // CHECK FOR STYLE CHANGE
   const prevStyleIndex = React.useRef(styleIndex);
@@ -133,7 +142,7 @@ export const RenderComponentWrapper = Component => props => {
     if (!maplibreMap || !isActive) return;
     if (prevStyleIndex.current === styleIndex) return;
 
-    MapActions.setResourcesLoaded(layer.id, false);
+    setResourcesLoaded(false);
 
     startLoading();
 
@@ -158,8 +167,9 @@ export const RenderComponentWrapper = Component => props => {
 
     prevStyleIndex.current = styleIndex;
 
-  }, [maplibreMap, sources, layers, isActive, startLoading, stopLoading,
-      styleIndex, MapActions.setResourcesLoaded, layer.id
+  }, [maplibreMap, sources, layers, isActive,
+      startLoading, stopLoading,
+      styleIndex, setResourcesLoaded
     ]
   );
 
@@ -509,9 +519,9 @@ export const RenderComponentWrapper = Component => props => {
 
     const loaded = !loading && sourcesLoaded && layersLoaded;
 
-    MapActions.setResourcesLoaded(layer.id, loaded);
+    setResourcesLoaded(loaded);
 
-  }, [maplibreMap, layer.id, sources, layers, MapActions.setResourcesLoaded, loading, resourcesLoaded]);
+  }, [maplibreMap, layer.id, sources, layers, setResourcesLoaded, loading, resourcesLoaded]);
 
   return (
     <Component { ...props }
