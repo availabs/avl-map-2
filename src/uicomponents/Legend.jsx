@@ -102,7 +102,7 @@ const RangeValues = ({ range: [min, max], color, format, isFirst, isLast }) => {
   )
 }
 
-const NonOrdinalLegend = ({ type, domain, range, format = ",d" }) => {
+const NonOrdinalLegend = ({ type, domain, range, showHover = true, format = ",d" }) => {
 
   const Scale = React.useMemo(() => {
     return getScale(type, domain, range);
@@ -127,15 +127,15 @@ const NonOrdinalLegend = ({ type, domain, range, format = ",d" }) => {
   return (
     <div>
       <ColorBar colors={ range } height={ 3 }
-        onMouseEnter={ onMouseEnter }
-        onMouseLeave={ onMouseLeave }/>
+        onMouseEnter={ showHover ? onMouseEnter : null }
+        onMouseLeave={ showHover ? onMouseLeave : null }/>
 
       <LegendTicks type={ type }
         scale={ Scale }
         format={ Format }/>
 
       <div className="w-full relative">
-        { !showRange ? null :
+        { !showRange || !showHover ? null :
           <div className="absolute w-full left-0 top-0">
             <RangeValuesContainer>
               <RangeValues

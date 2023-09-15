@@ -1085,7 +1085,7 @@ const AvlMap = allProps => {
           </div>
         }
 
-        { !rightSidebar ? null :
+        { !rightSidebar || !activeLayers.length ? null :
           <div className="h-full relative pl-4">
             <RightSidebar { ...rightSidebarOptions }
               legend={ state.legend }
