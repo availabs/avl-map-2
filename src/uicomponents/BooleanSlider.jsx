@@ -10,24 +10,25 @@ export const BooleanSlider = ({ value, onChange }) => {
   return (
     <div onClick={ toggle }
       className={ `
-        px-4 py-1 h-8 rounded flex items-center w-full cursor-pointer
-        ${ theme.bgInput }
+        ${ theme.bgInput } ${ theme.input }
       ` }
     >
-      <div className={ `
-          rounded h-2 relative flex flex-1 items-center
-          ${ theme.bgAccent2 }
-        ` }
-      >
+      <div className="h-6 w-full flex items-center px-2">
         <div className={ `
-            w-4 h-4 rounded absolute
-            ${ Boolean(value) ? theme.bgHighlight : theme.bgAccent3 }
+            rounded h-2 relative flex flex-1 items-center
+            ${ theme.bgAccent2 }
           ` }
-          style={ {
-            left: Boolean(value) ? "100%" : "0%",
-            transform: "translateX(-50%)",
-            transition: "left 150ms"
-          } }/>
+        >
+          <div className={ `
+              w-4 h-4 rounded absolute
+              ${ Boolean(value) ? theme.bgHighlight : theme.bgAccent3 }
+            ` }
+            style={ {
+              left: Boolean(value) ? "100%" : "0%",
+              transform: "translateX(-50%)",
+              transition: "left 150ms"
+            } }/>
+        </div>
       </div>
     </div>
   )

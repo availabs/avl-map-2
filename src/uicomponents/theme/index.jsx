@@ -10,6 +10,9 @@ const LightBase = {
   bgInput: "bg-white",
   bgInputHover: "hover:bg-white",
 
+  bgLegend: "bg-gray-300",
+  bgLegendHover: "hover:bg-gray-300",
+
   bgContrast: "bg-gray-800",
   bgContrastHover: "hover:bg-gray-800",
 

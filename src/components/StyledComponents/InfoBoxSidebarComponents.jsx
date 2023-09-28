@@ -7,7 +7,8 @@ export const InfoBoxHeaderContainer = ({ open, toggleOpen, children }) => {
   return (
     <div onClick={ toggleOpen }
       className={ `
-        p-1 font-bold flex ${ theme.bgAccent2 } rounded-t cursor-pointer
+        p-1 font-bold flex rounded-t cursor-pointer
+        ${ theme.bgAccent1 } ${ theme.bgAccent2Hover }
         ${ open ? `border-b ${ theme.border }` : "rounded-b" }
       ` }
     >
@@ -46,7 +47,7 @@ export const LegendContainer = ({ name, title, children }) => {
     <div className={ `p-1 sticky top-0 ${ theme.bg }` }>
       <div className={ `
           p-1 relative border rounded pointer-events-auto
-          ${ theme.bgAccent2 } ${ theme.border }
+          ${ theme.bgLegend } ${ theme.bgLegendHover } ${ theme.border }
         ` }
       >
         <div>{ name || title }</div>

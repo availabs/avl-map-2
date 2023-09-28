@@ -107,7 +107,7 @@ const LayerSidebar = ({ startOpen = true, Panels = [], ...props }) => {
                 { SidebarPanels.map(({ Panel }, i) => (
                     <div key={ i }
                       className={
-                        tabIndex === i ? "block" : "h-0 overflow-hidden invisible"
+                        tabIndex === i ? "block h-full" : "h-0 overflow-hidden invisible"
                       }
                     >
                       <Panel key={ i } { ...props }/>

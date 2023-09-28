@@ -1,6 +1,7 @@
 import React from "react"
 
 import mapboxgl from "maplibre-gl"
+import get from "lodash/get"
 
 import { hasValue } from "./utils"
 import { useTheme } from "./uicomponents"
@@ -63,8 +64,6 @@ export const RenderComponentWrapper = Component => props => {
     MapActions.setResourcesLoaded(layer.id, loaded);
   }, [MapActions.setResourcesLoaded, layer.id]);
 
-  const [layerVisibility, _setLayerVisibility] = React.useState({});
-
   const [loading, setLoading] = React.useState(0);
   const startLoading = React.useCallback(() => {
     setLoading(l => l + 1);
@@ -109,11 +108,8 @@ export const RenderComponentWrapper = Component => props => {
         else {
           maplibreMap.addLayer(layer);
         }
-        layerVisibility[layer.id] = maplibreMap.getLayoutProperty(layer.id, "visibility");
       }
     });
-
-    _setLayerVisibility(layerVisibility);
 
     const removeLayers = () => {
       layers.forEach(layer => {
@@ -172,26 +168,6 @@ export const RenderComponentWrapper = Component => props => {
       styleIndex, setResourcesLoaded
     ]
   );
-
-  React.useEffect(() => {
-    if (!maplibreMap) return;
-
-    layers.forEach(({ id }) => {
-      if (isVisible && (layerVisibility[id] !== "none")) {
-        maplibreMap.setLayoutProperty(id, "visibility", "visible");
-      }
-      else {
-        maplibreMap.setLayoutProperty(id, "visibility", "none");
-      }
-    });
-  }, [maplibreMap, layers, isVisible, layerVisibility]);
-
-  const setLayerVisibility = React.useCallback((layerId, visibility) => {
-    _setLayerVisibility(prev => ({
-      ...prev,
-      [layerId]: visibility
-    }));
-  }, []);
 
 // ADD ON CLICK
   React.useEffect(() => {
@@ -522,6 +498,39 @@ export const RenderComponentWrapper = Component => props => {
     setResourcesLoaded(loaded);
 
   }, [maplibreMap, layer.id, sources, layers, setResourcesLoaded, loading, resourcesLoaded]);
+
+  const [layerVisibility, _setLayerVisibility] = React.useState({});
+
+  const setLayerVisibility = React.useCallback((layerId, visibility) => {
+    _setLayerVisibility(prev => ({
+      ...prev,
+      [layerId]: visibility
+    }));
+  }, []);
+
+// SET INITAL LAYER VISIBILITIES
+  React.useEffect(() => {
+    const layerVisibility = layers.reduce((a, c) => {
+      a[c.id] = get(c, ["layout", "visibility"], "visible");
+      return a;
+    }, {});
+    _setLayerVisibility(layerVisibility);
+  }, [layers]);
+
+// LISTEN FOR LAYER VISIBILITY CHANGE
+  React.useEffect(() => {
+    if (!maplibreMap) return;
+    if (!resourcesLoaded) return;
+
+    layers.forEach(({ id }) => {
+      if (isVisible && (layerVisibility[id] !== "none")) {
+        maplibreMap.setLayoutProperty(id, "visibility", "visible");
+      }
+      else {
+        maplibreMap.setLayoutProperty(id, "visibility", "none");
+      }
+    });
+  }, [maplibreMap, layers, isVisible, resourcesLoaded, layerVisibility]);
 
   return (
     <Component { ...props }

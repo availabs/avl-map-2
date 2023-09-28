@@ -54,7 +54,7 @@ const DefaultMapOptions = {
 const DefaultLeftSidebar = {
   Component: LayerSidebar,
   startOpen: true,
-  Panels: ["LayersPanel", "StylePanel", "LegendPanel"]
+  Panels: ["LayersPanel", "StylesPanel", "LegendPanel"]
 }
 const DefaultRightSidebar = {
   Component: InfoBoxSidebar

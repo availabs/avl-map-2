@@ -72,7 +72,7 @@ const InfoBoxSidebar = allProps => {
               a.push(
                 ...c.infoBoxes.map((options, i) => (
                   <InfoBoxController key={ `${ c.id }-${ i }` }
-                    { ...props } { ...options } layer={ c }/>
+                    { ...props } { ...options } legend={ legend } layer={ c }/>
                 ))
               )
               return a;
