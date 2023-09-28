@@ -103,7 +103,7 @@ const RangeValues = ({ range: [min, max], color, format, isFirst, isLast }) => {
 }
 
 const NonOrdinalLegend = ({ type, domain, range, showHover = true, format = ",d" }) => {
-
+  
   const Scale = React.useMemo(() => {
     return getScale(type, domain, range);
   }, [type, domain, range]);
@@ -161,15 +161,20 @@ export const Legend = ({ type, ...props }) => {
 
 const LegendTicks = ({ type, scale, format }) => {
   const size = scale.range().length;
+  const tick_values = React.useMemo(() => scale.domain(), [scale])
   return type === "threshold" ? (
     <div className="flex text-left">
       <div style={ { width: `${ 100 / size }%` } }/>
-      { scale.domain().map((d, i) => (
+      {/* 
+        filter is for magically added 0 values
+        better to find how they are added
+      */}
+      { tick_values.filter(d => d).map((d, i) => (
           <div key={ d }
             className="pl-1"
             style={ { width: `${ 100 / size }%` } }
           >
-            { format(d) }
+           { format(d) }
           </div>
         ))
       }
