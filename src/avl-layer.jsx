@@ -76,9 +76,9 @@ export const RenderComponentWrapper = Component => props => {
   React.useEffect(() => {
     if (!maplibreMap || !isActive) return;
 
-    startLoading();
+    setResourcesLoaded(false);
 
-    setTimeout(stopLoading, 500);
+    startLoading();
 
     sources.forEach(({ id, source, protocol }) => {
       if (!maplibreMap.getSource(id)) {
@@ -119,6 +119,8 @@ export const RenderComponentWrapper = Component => props => {
       })
     }
 
+    setTimeout(stopLoading, 500);
+
     return () => {
       if (!maplibreMap || !maplibreMap.loaded()) return;
 
@@ -142,8 +144,6 @@ export const RenderComponentWrapper = Component => props => {
 
     startLoading();
 
-    setTimeout(stopLoading, 500);
-
     sources.forEach(({ id, source }) => {
       if (!maplibreMap.getSource(id)) {
         maplibreMap.addSource(id, source);
@@ -162,6 +162,8 @@ export const RenderComponentWrapper = Component => props => {
     });
 
     prevStyleIndex.current = styleIndex;
+
+    setTimeout(stopLoading, 500);
 
   }, [maplibreMap, sources, layers, isActive,
       startLoading, stopLoading,
