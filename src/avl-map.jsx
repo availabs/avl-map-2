@@ -252,6 +252,9 @@ const InitialState = {
 const Reducer = (state, action) => {
   const { type, ...payload } = action;
   switch (type) {
+    case "reset-state": {
+      return InitialState;
+    }
     case "toggle-layer-visibility":
       return {
         ...state,
@@ -552,6 +555,7 @@ const AvlMap = allProps => {
 
 // INITIALIZE MAP
   React.useEffect(() => {
+console.log("INITIALIZING MAP")
     const {
       styles,
       navigationControl,
@@ -592,7 +596,10 @@ const AvlMap = allProps => {
       dispatch({ type: "map-loaded", maplibreMap, mapStyles: styles, styleIndex, legend, Protocols });
     });
 
-    return () => maplibreMap.remove();
+    return () => {
+      maplibreMap.remove();
+      dispatch({ type: "reset-state" });
+    }
   }, []);
 
 // INITIALIZE LAYERS
@@ -604,7 +611,9 @@ const AvlMap = allProps => {
     const activeLayers = {};
     const resourcesLoaded = {};
 
-    [...layers, ...state.dynamicLayers].forEach(l => {
+    const allLayers = [...layers, ...state.dynamicLayers];
+
+    allLayers.forEach(l => {
       if (!l._initialized) {
         layerVisibility[l.id] = get(l, "startVisible", true);
         layerState[l.id] = get(l, "startState", {});
@@ -803,7 +812,7 @@ const AvlMap = allProps => {
 // DETERMINE ACTIVE AND INACTIVE LAYERS
   const [activeLayers, inactiveLayers] = React.useMemo(() => {
     return [...layers, ...state.dynamicLayers].reduce((a, c) => {
-      if (state.activeLayers[c.id]) {
+      if (state.activeLayers[c.id] && c._initialized) {
         a[0].push(c);
       }
       else {

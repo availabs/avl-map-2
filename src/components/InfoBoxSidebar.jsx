@@ -29,11 +29,11 @@ const InfoBoxController = ({ Component, Header, startOpen = true, ...props }) =>
             { typeof Header === "function" ? <Header { ...props }/> : Header }
           </InfoBoxHeaderContainer>
         }
-        { !open && Header ? null :
+        <div className={ open ? "block" : "h-0 overflow-hidden invisible"}>
           <InfoBoxContentContainer>
             <Component { ...props }/>
           </InfoBoxContentContainer>
-        }
+        </div>
       </InfoBoxContainer>
   )
 }
