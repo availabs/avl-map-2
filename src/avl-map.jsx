@@ -555,7 +555,6 @@ const AvlMap = allProps => {
 
 // INITIALIZE MAP
   React.useEffect(() => {
-console.log("INITIALIZING MAP")
     const {
       styles,
       navigationControl,
