@@ -54,3 +54,5 @@ export const capitalize = string => {
         .join("")
     ).join(" ")
 }
+
+export const strictNaN = v => (v === "") || (v === null) || isNaN(v);

@@ -77,7 +77,10 @@ export const MultiLevelSelect = props => {
   const [xDir, setXDirection] = React.useState(xDirection);
   const [topOffset, setTopOffset] = React.useState(0);
   React.useEffect(() => {
-    if (!inner) return;
+    if (!inner || !show) {
+      setTopOffset(0);
+      return;
+    }
     const rect = inner.getBoundingClientRect();
     const height = window.innerHeight;
     const width = window.innerWidth;
@@ -87,7 +90,7 @@ export const MultiLevelSelect = props => {
     if ((rect.y + rect.height) > height) {
       setTopOffset(height - (rect.y + rect.height))
     }
-  }, [inner]);
+  }, [inner, show]);
 
   const [search, setSearch] = React.useState("");
 
