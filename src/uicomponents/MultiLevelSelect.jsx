@@ -9,6 +9,8 @@ import {
   useTheme
 } from "./index"
 
+import { hasValue } from "../utils"
+
 const EmptyArray = [];
 const NoOp = () => {};
 const Identity = v => v;
@@ -24,10 +26,6 @@ const getDisplayValues = (options, value, dAccess, vAccess, result = []) => {
     }
     return getDisplayValues(get(c, "children", []), value, dAccess, vAccess, a);
   }, result);
-}
-
-const hasValue = value => {
-  return Array.isArray(value) ? Boolean(value.length) : Boolean(value);
 }
 
 export const MultiLevelSelect = props => {
@@ -52,7 +50,7 @@ export const MultiLevelSelect = props => {
   } = props;
 
   const Value = React.useMemo(() => {
-    return !value ? [] : Array.isArray(value) ? value : [value];
+    return !hasValue(value) ? [] : Array.isArray(value) ? value : [value];
   }, [value]);
 
   const [outter, setOutter] = React.useState(null);
