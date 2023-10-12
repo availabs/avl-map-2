@@ -985,8 +985,22 @@ const AvlMap = allProps => {
 
       { Modals.map(({ Component, key, startPos, ...rest }) => (
           <Modal key={ key } { ...rest }
-            MapActions={ MapActions }
             startPos={ startPos }
+            legend={ state.legend }
+            maplibreMap={ state.maplibreMap }
+            MapActions={ MapActions }
+            activeLayers={ activeLayers }
+            inactiveLayers={ inactiveLayers }
+            mapStyles={ state.mapStyles }
+            styleIndex={ state.styleIndex }
+            layerVisibility={ state.layerVisibility }
+            layerProps={ layerProps }
+            layerState={ state.layerState }
+            filterUpdate={ state.filterUpdate }
+            layersLoading={ state.layersLoading }
+            loadingLayers={ loadingLayers }
+            resourcesLoaded={ state.resourcesLoaded }
+            openedModals={ state.openedModals }
           >
             <Component { ...rest }
               legend={ state.legend }

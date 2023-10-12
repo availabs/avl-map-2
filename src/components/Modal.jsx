@@ -39,20 +39,20 @@ export const Modal = allProps => {
       dragHandle={ dragHandle }
     >
       <ModalContainer>
-        { typeof Header === "function" ?
+        <ModalHeaderContainer
+          closeModal={ closeModal }
+          bringModalToFront={ bringModalToFront }
+          dragHandle={ dragHandle }
+        >
+          { typeof Header === "function" ?
             <Header { ...props }
               closeModal={ closeModal }
               bringModalToFront={ bringModalToFront }
               MapActions={ MapActions }
               dragHandle={ dragHandle }/> :
-            <ModalHeaderContainer
-              closeModal={ closeModal }
-              bringModalToFront={ bringModalToFront }
-              dragHandle={ dragHandle }
-            >
-              { Header }
-            </ModalHeaderContainer>
-        }
+            Header
+          }
+        </ModalHeaderContainer>
         <ModalContentContainer>
           { children }
         </ModalContentContainer>
