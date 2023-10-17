@@ -59,6 +59,13 @@ const InfoBoxSidebar = allProps => {
     LegendContainer
   } = useComponentLibrary();
 
+  const infoBoxFilter = React.useCallback(({ isActive = true }, layer) => {
+    if (typeof isActive === "function") {
+      return isActive({ ...allProps, layer });
+    }
+    return Boolean(isActive);
+  }, [allProps]);
+
   return (
     <InfoBoxSidebarContainer>
       { !legend.isActive ? null :
@@ -70,10 +77,12 @@ const InfoBoxSidebar = allProps => {
         <div className={ `${ legend.isActive ? "px-1 pb-1" : "p-1" } grid grid-cols-1 gap-1` }>
           { LayersWithInfoBoxes.reduce((a, c) => {
               a.push(
-                ...c.infoBoxes.map((options, i) => (
-                  <InfoBoxController key={ `${ c.id }-${ i }` }
-                    { ...props } { ...options } legend={ legend } layer={ c }/>
-                ))
+                ...c.infoBoxes
+                  .filter(ib => infoBoxFilter(ib, c))
+                  .map((options, i) => (
+                    <InfoBoxController key={ `${ c.id }-${ i }` }
+                      { ...props } { ...options } legend={ legend } layer={ c }/>
+                  ))
               )
               return a;
             }, [])
