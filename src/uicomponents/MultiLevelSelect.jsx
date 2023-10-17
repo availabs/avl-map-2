@@ -97,14 +97,17 @@ export const MultiLevelSelect = props => {
     setSearch("");
     if (isMulti) {
       if (Value.includes(value)) {
-        onChange(Value.filter(v => v !== value));
+        const newValue = Value.filter(v => v !== value);
+        if (removable || newValue.length) {
+          onChange(newValue);
+        }
       }
       else {
         onChange([...Value, value]);
       }
     }
     else {
-      if (Value.includes(value)) {
+      if (removable && Value.includes(value)) {
         onChange(null);
       }
       else {
@@ -114,7 +117,7 @@ export const MultiLevelSelect = props => {
         setShow(false);
       }
     }
-  }, [Value, onChange, isMulti, displayAccessor, valueAccessor]);
+  }, [Value, onChange, isMulti, removable, displayAccessor, valueAccessor]);
 
   const remove = React.useCallback(value => {
     if (isMulti && Value.includes(value)) {
@@ -163,7 +166,7 @@ export const MultiLevelSelect = props => {
       }
 
       <div ref={ setInner }
-        className={ `absolute w-full ${ show ? "h-fit" : "hidden h-0" }` }
+        className={ `absolute w-full max-w-full ${ show ? "h-fit" : "hidden h-0" }` }
         style={ {
           zIndex,
           top: `calc(100% + ${ topOffset }px)`,
@@ -434,9 +437,9 @@ const ValueContainer = props => {
 const DefaultDisplayItem = ({ children, active, hasChildren }) => {
   const theme = useTheme();
   return (
-    <div style={ { minWidth: "12rem" } }
+    <div
       className={ `
-        py-1 px-2 flex items-center text-left min-w-fit whitespace-nowrap
+        py-1 px-2 flex items-center text-left min-w-fit max-w-full whitespace-nowrap
         ${ active ? theme.bgAccent3 : `${ theme.bgAccent2Hover } ${ theme.bgAccent1 }` }
       ` }
     >

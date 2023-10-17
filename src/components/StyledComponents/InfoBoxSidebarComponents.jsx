@@ -63,7 +63,7 @@ export const InfoBoxSidebarContainer = ({ open, children }) => {
     <div className="relative h-full">
       <div className={ `
           w-96 ${ theme.bg } rounded pointer-events-auto
-          max-h-full h-fit scrollbar-sm overflow-auto
+          max-h-full scrollbar-sm overflow-auto
         ` }
       >
         { children }
