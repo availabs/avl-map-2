@@ -146,7 +146,7 @@ export const MultiLevelSelect = props => {
   }, [options, displayAccessor]);
 
   const getItem = React.useCallback(opt => {
-    return get(opt, "Item", DisplayItem);
+    return get(opt, "DisplayItem", DisplayItem);
   }, [DisplayItem]);
 
   const fused = fuse(search);
@@ -204,7 +204,7 @@ export const MultiLevelSelect = props => {
               const Item = getItem(opt);
               const value = valueAccessor(opt);
               return (
-                <Dropdown key={ `${ value }-${ i }` }
+                <Dropdown key={ i }
                   { ...props }
                   options={ get(opt, "children", []) }
                   xDirection={ 1 }
@@ -216,7 +216,8 @@ export const MultiLevelSelect = props => {
                     select={ select }
                     option={ opt }
                   >
-                    <Item active={ Value.includes(value) }
+                    <Item value={ value }
+                      active={ Value.includes(value) }
                       hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
                     >
                       { displayAccessor(opt) }
@@ -339,15 +340,17 @@ const Dropdown = props => {
           <div className="w-fit">
             { fuse(search).slice(0, maxOptions).map((opt, i) => {
                 const Item = getItem(opt);
+                const value = valueAccessor(opt);
                 return (
-                  <Dropdown key={ `${ valueAccessor(opt) }-${ i }` }
+                  <Dropdown key={ i }
                     { ...props }
                     options={ get(opt, "children", []) }
                     xDirection={ xDir }
                     zIndex={ zIndex + 5 }
                   >
                     <Clickable select={ doSelect } option={ opt }>
-                      <Item active={ Value.includes(valueAccessor(opt)) }
+                      <Item value={ value }
+                        active={ Value.includes(value) }
                         hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
                       >
                         { displayAccessor(opt) }
