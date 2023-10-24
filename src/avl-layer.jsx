@@ -27,6 +27,8 @@ const DefaultHoverComp = props => {
   )
 }
 
+const LOADING_DURATION = 750;
+
 export const RenderComponentWrapper = Component => props => {
   const {
     maplibreMap,
@@ -64,12 +66,12 @@ export const RenderComponentWrapper = Component => props => {
     MapActions.setResourcesLoaded(layer.id, loaded);
   }, [MapActions.setResourcesLoaded, layer.id]);
 
-  const [loading, setLoading] = React.useState(0);
-  const startLoading = React.useCallback(() => {
-    setLoading(l => l + 1);
+  const [loadingResources, setLoadingResources] = React.useState(0);
+  const startLoadingResources = React.useCallback(() => {
+    setLoadingResources(l => l + 1);
   }, []);
-  const stopLoading = React.useCallback(() => {
-    setLoading(l => l - 1);
+  const stopLoadingResources = React.useCallback(() => {
+    setLoadingResources(l => l - 1);
   }, []);
 
 // LOAD SOURCES AND LAYERS
@@ -78,7 +80,8 @@ export const RenderComponentWrapper = Component => props => {
 
     setResourcesLoaded(false);
 
-    startLoading();
+    startLoadingResources();
+    startLayerLoading();
 
     sources.forEach(({ id, source, protocol }) => {
       if (!maplibreMap.getSource(id)) {
@@ -119,17 +122,22 @@ export const RenderComponentWrapper = Component => props => {
       })
     }
 
-    setTimeout(stopLoading, 500);
+    const finish = () => {
+      stopLoadingResources();
+      stopLayerLoading();
+    }
+    setTimeout(finish, LOADING_DURATION);
 
     return () => {
-      if (!maplibreMap || !maplibreMap.loaded()) return;
+      if (!maplibreMap) return;
 
       removeLayers();
       removeSources();
       setResourcesLoaded(false);
     };
   }, [maplibreMap, sources, layers, Protocols, isActive,
-      startLoading, stopLoading, setResourcesLoaded
+      startLoadingResources, stopLoadingResources, setResourcesLoaded,
+      startLayerLoading, stopLayerLoading
     ]
   );
 
@@ -142,7 +150,8 @@ export const RenderComponentWrapper = Component => props => {
 
     setResourcesLoaded(false);
 
-    startLoading();
+    startLoadingResources();
+    startLayerLoading();
 
     sources.forEach(({ id, source }) => {
       if (!maplibreMap.getSource(id)) {
@@ -163,10 +172,15 @@ export const RenderComponentWrapper = Component => props => {
 
     prevStyleIndex.current = styleIndex;
 
-    setTimeout(stopLoading, 500);
+    const finish = () => {
+      stopLoadingResources();
+      stopLayerLoading();
+    }
+    setTimeout(finish, LOADING_DURATION);
 
   }, [maplibreMap, sources, layers, isActive,
-      startLoading, stopLoading,
+      startLoadingResources, stopLoadingResources,
+      startLayerLoading, stopLayerLoading,
       styleIndex, setResourcesLoaded
     ]
   );
@@ -202,7 +216,7 @@ export const RenderComponentWrapper = Component => props => {
     });
 
     return () => {
-      if (!maplibreMap || !maplibreMap.loaded()) return;
+      if (!maplibreMap) return;
 
       funcs.forEach(({ action, callback, layerId }) => {
         if (layerId === "maplibreMap") {
@@ -348,7 +362,7 @@ export const RenderComponentWrapper = Component => props => {
     }, []);
 
     return () => {
-      if (!maplibreMap || !maplibreMap.loaded()) return;
+      if (!maplibreMap) return;
 
       funcs.forEach(({ action, callback, layerId }) => {
         maplibreMap.off(action, layerId, callback);
@@ -476,7 +490,7 @@ export const RenderComponentWrapper = Component => props => {
     return () => {
       div.removeEventListener("mousedown", mousedown);
 
-      if (!maplibreMap || !maplibreMap.loaded()) return;
+      if (!maplibreMap) return;
 
       maplibreMap.boxZoom.enable();
     }
@@ -495,11 +509,13 @@ export const RenderComponentWrapper = Component => props => {
       return a && Boolean(maplibreMap.getLayer(c.id));
     }, true);
 
-    const loaded = !loading && sourcesLoaded && layersLoaded;
+    const loaded = !loadingResources && sourcesLoaded && layersLoaded;
 
     setResourcesLoaded(loaded);
 
-  }, [maplibreMap, layer.id, sources, layers, setResourcesLoaded, loading, resourcesLoaded]);
+  }, [maplibreMap, layer.id, sources, layers,
+    setResourcesLoaded, loadingResources, resourcesLoaded
+  ]);
 
   const [layerVisibility, _setLayerVisibility] = React.useState({});
 

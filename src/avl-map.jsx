@@ -592,13 +592,15 @@ const AvlMap = allProps => {
     });
 
     maplibreMap.once("load", (e) => {
-      dispatch({ type: "map-loaded", maplibreMap, mapStyles: styles, styleIndex, legend, Protocols });
+      dispatch({
+        type: "map-loaded",
+        maplibreMap,
+        mapStyles: styles,
+        styleIndex,
+        legend,
+        Protocols
+      });
     });
-
-    return () => {
-      maplibreMap.remove();
-      dispatch({ type: "reset-state" });
-    }
   }, []);
 
 // INITIALIZE LAYERS
