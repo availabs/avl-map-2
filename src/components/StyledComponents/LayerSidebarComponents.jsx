@@ -5,10 +5,11 @@ import { useTheme } from "../../uicomponents"
 export const LayerSidebarPanelContainer = ({ children }) => {
   const theme = useTheme();
   return (
-    <div className={ `
-        w-80 h-full max-h-full p-1 ${ theme.bg } rounded-b
-        pointer-events-auto overflow-auto scrollbar-sm
-      ` }
+    <div className={ 
+        theme?.LayerSidebarPanelContainer !== 'LayerSidebarPanelContainer' ? 
+        theme.LayerSidebarPanelContainer : 
+        `w-80 h-full max-h-full p-1 ${ theme.bg } rounded-b pointer-events-auto overflow-auto scrollbar-sm`
+      }
     >
       { children }
     </div>
@@ -16,13 +17,18 @@ export const LayerSidebarPanelContainer = ({ children }) => {
 }
 
 export const LayerSidebarContainer = ({ open, children }) => {
+  const theme = useTheme();
+  
   return (
     <div className={ `
         w-full h-full relative ${ open ? "p-0" : "pr-8" }
       ` }
       style={ { transition: "padding 150ms" } }
     >
-      <div className={ `w-full h-full max-h-full relative` }>
+      <div className={
+        theme?.LayerSidebarContainer !== 'LayerSidebarContainer' ? 
+        theme.LayerSidebarContainer : `w-full h-full max-h-full relative` }
+      >
         { children }
       </div>
     </div>
@@ -34,7 +40,9 @@ export const LayerSidebarToggle = ({ toggle, open }) => {
   return (
     <div className="pointer-events-auto">
       <div onClick={ toggle }
-        className={ `
+        className={
+          theme?.LayerSidebarToggle != 'LayerSidebarToggle' ? 
+          theme.LayerSidebarToggle : `
           h-8 w-8 ${ theme.bg } text-2xl
           flex items-center justify-center
           cursor-pointer ${ open ? "rounded-t" : "rounded" }
@@ -59,17 +67,24 @@ export const LayerSidebarTab = ({ icon, active, setTabIndex, index }) => {
   const theme = useTheme();
   return (
     <div onClick={ onClick }
-      className={ `
-        h-8 w-10 rounded-t mr-1 cursor-pointer pointer-events-auto relative
-        ${ active ? theme.bg : theme.bgAccent1 }
-      ` }
+      className={ 
+        active ?
+          (theme?.LayerSidebarTabActive != 'LayerSidebarTabActive' ?
+          theme?.LayerSidebarTabActive :  
+          ` h-8 w-10 rounded-t mr-1 cursor-pointer pointer-events-auto relative ${theme.bg} ${ theme.textHighlight }`
+          ) : 
+          (theme?.LayerSidebarTab != 'LayerSidebarTab' ?
+          theme?.LayerSidebarTab :  
+          ` h-8 w-10 rounded-t mr-1 cursor-pointer pointer-events-auto relative ${theme.bgAccent1} ${ theme.textHighlight }`
+          )
+      }
     >
       { active ?
         <div className="absolute inset-0 flex justify-center items-center">
-          <span className={ `${ icon } ${ theme.textHighlight }` }/>
+          <span className={ `${ icon } ` }/>
         </div> :
         <div className="absolute inset-0 flex justify-center items-center">
-          <span className={ `${ icon } ${ theme.textHighlight }` }/>
+          <span className={ `${ icon } ` }/>
           <span className={ `
             absolute inset-0 flex justify-center items-center
             opacity:100 hover:opacity-25 ${ theme.text } ${ icon }

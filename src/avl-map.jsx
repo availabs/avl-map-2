@@ -253,9 +253,6 @@ const InitialState = {
 const Reducer = (state, action) => {
   const { type, ...payload } = action;
   switch (type) {
-    case "reset-state": {
-      return InitialState;
-    }
     case "toggle-layer-visibility":
       return {
         ...state,
@@ -618,6 +615,7 @@ const AvlMap = allProps => {
         legend,
         Protocols
       });
+
     });
 
     return () => {
