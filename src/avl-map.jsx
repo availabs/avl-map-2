@@ -4,7 +4,7 @@ import maplibre from "maplibre-gl"
 
 import get from "lodash/get"
 
-import { RenderComponentWrapper } from "./avl-layer"
+import { LayerRenderComponent } from "./avl-layer"
 
 import LayerSidebar from "./components/LayerSidebar"
 import InfoBoxSidebar from "./components/InfoBoxSidebar"
@@ -247,7 +247,8 @@ const InitialState = {
     isActive: false
   },
   openedModals: [],
-  Protocols: {}
+  Protocols: {},
+  initializedLayers: []
 }
 const Reducer = (state, action) => {
   const { type, ...payload } = action;
@@ -470,19 +471,6 @@ const Reducer = (state, action) => {
         }
       }
 
-    case "update-state":
-      return { ...state, ...payload };
-    case "map-loaded": {
-      const { legend, ...rest } = payload;
-      return {
-        ...state,
-        ...rest,
-        legend: {
-          ...state.legend,
-          ...legend
-        }
-      };
-    }
     case "update-legend":
       return {
         ...state,
@@ -491,10 +479,32 @@ const Reducer = (state, action) => {
           ...payload.update
         }
       }
-    case "initialize-layers": {
-      const { layerVisibility, layerState, activeLayers, resourcesLoaded } = payload;
+
+    case "set-resources-loaded": {
+      const { layerId, loaded } = payload;
       return {
         ...state,
+        resourcesLoaded: {
+          ...state.resourcesLoaded,
+          [layerId]: loaded
+        }
+      }
+    }
+
+    case "initialize-layers": {
+      const {
+        layerVisibility,
+        layerState,
+        activeLayers,
+        resourcesLoaded,
+        initializedLayers
+      } = payload;
+      return {
+        ...state,
+        initializedLayers: [
+          ...state.initializedLayers,
+          ...initializedLayers
+        ],
         layerVisibility: {
           ...state.layerVisibility,
           ...layerVisibility
@@ -513,16 +523,24 @@ const Reducer = (state, action) => {
         }
       }
     }
-    case "set-resources-loaded": {
-      const { layerId, loaded } = payload;
+
+    case "update-state":
+      return { ...state, ...payload };
+
+    case "map-loaded": {
+      const { legend, ...rest } = payload;
       return {
         ...state,
-        resourcesLoaded: {
-          ...state.resourcesLoaded,
-          [layerId]: loaded
+        ...rest,
+        initializedLayers: [],
+        legend: {
+          ...state.legend,
+          ...legend
         }
-      }
+      };
     }
+    case "map-removed":
+      return { ...InitialState };
     default:
       return state;
   }
@@ -532,9 +550,9 @@ const AvlMap = allProps => {
   const {
     accessToken,
     mapOptions = EmptyObject,
+    id,
     layers = EmptyArray,
     layerProps = EmptyObject,
-    id,
     leftSidebar = EmptyObject,
     rightSidebar = EmptyObject,
     legend = EmptyObject,
@@ -542,9 +560,8 @@ const AvlMap = allProps => {
     ...props
   } = allProps;
 
-  const containerId = React.useRef(id || getNewId());
-
   const MapOptions = React.useRef({
+    containerId: id || getNewId(),
     ...DefaultMapOptions,
     ...mapOptions,
     accessToken,
@@ -560,6 +577,7 @@ const AvlMap = allProps => {
       navigationControl,
       legend,
       protocols = [],
+      containerId,
       ...Options
     } = MapOptions.current;
 
@@ -575,7 +593,7 @@ const AvlMap = allProps => {
     let styleIndex = 0;
 
     const maplibreMap = new maplibre.Map({
-      container: containerId.current,
+      container: containerId,
       ...Options,
       style: styles[0].style
     });
@@ -584,14 +602,14 @@ const AvlMap = allProps => {
       maplibreMap.addControl(new maplibre.NavigationControl(), navigationControl);
     }
 
-    maplibreMap.on("move", (e) => {
+    maplibreMap.on("move", e => {
       dispatch({ type: "update-state", moving: true });
     });
-    maplibreMap.on("moveend", (e) => {
+    maplibreMap.on("moveend", e => {
       dispatch({ type: "update-state", moving: false });
     });
 
-    maplibreMap.once("load", (e) => {
+    maplibreMap.once("load", e => {
       dispatch({
         type: "map-loaded",
         maplibreMap,
@@ -601,26 +619,36 @@ const AvlMap = allProps => {
         Protocols
       });
     });
+
+    return () => {
+      dispatch({ type: "map-removed" })
+      maplibreMap.remove();
+    };
   }, []);
 
 // INITIALIZE LAYERS
   React.useEffect(() => {
     if (!state.maplibreMap) return;
 
-    const layerVisibility = {};
-    const layerState = {};
-    const activeLayers = {};
-    const resourcesLoaded = {};
-
     const allLayers = [...layers, ...state.dynamicLayers];
 
-    allLayers.forEach(l => {
-      if (!l._initialized) {
+    const needsInitializing = allLayers.filter(l => {
+      return !state.initializedLayers.includes(l);
+    });
+
+    if (needsInitializing.length) {
+
+      const layerVisibility = {};
+      const layerState = {};
+      const activeLayers = {};
+      const resourcesLoaded = {};
+
+      needsInitializing.forEach(l => {
         layerVisibility[l.id] = get(l, "startVisible", true);
         layerState[l.id] = get(l, "startState", {});
         activeLayers[l.id] = get(l, "startActive", true);
         resourcesLoaded[l.id] = false;
-        l.RenderComponent = RenderComponentWrapper(l.RenderComponent);
+        // l.RenderComponent = RenderComponentWrapper(l.RenderComponent);
         function updateState(layerState) {
           dispatch({
             type: "update-layer-state",
@@ -629,17 +657,17 @@ const AvlMap = allProps => {
           })
         }
         l.updateState = updateState.bind(l);
-        l._initialized = true;
-      }
-    });
-    dispatch({
-      type: "initialize-layers",
-      layerVisibility,
-      layerState,
-      activeLayers,
-      resourcesLoaded
-    });
-  }, [state.maplibreMap, layers, state.dynamicLayers]);
+      });
+      dispatch({
+        type: "initialize-layers",
+        layerVisibility,
+        layerState,
+        activeLayers,
+        resourcesLoaded,
+        initializedLayers: needsInitializing
+      });
+    }
+  }, [state.maplibreMap, layers, state.dynamicLayers, state.initializedLayers]);
 
 // SEND PROPS TO LAYERS
   React.useEffect(() => {
@@ -813,7 +841,7 @@ const AvlMap = allProps => {
 // DETERMINE ACTIVE AND INACTIVE LAYERS
   const [activeLayers, inactiveLayers] = React.useMemo(() => {
     return [...layers, ...state.dynamicLayers].reduce((a, c) => {
-      if (state.activeLayers[c.id] && c._initialized) {
+      if (state.activeLayers[c.id] && state.initializedLayers.includes(c)) {
         a[0].push(c);
       }
       else {
@@ -821,7 +849,7 @@ const AvlMap = allProps => {
       }
       return a;
     }, [[], []]);
-  }, [layers, state.dynamicLayers, state.activeLayers]);
+  }, [layers, state.dynamicLayers, state.activeLayers, state.initializedLayers]);
 
 // APPLY POINTER STYLE TO CURSOR ON HOVER
   React.useEffect(() => {
@@ -978,11 +1006,13 @@ const AvlMap = allProps => {
     LoadingIndicator
   } = useComponentLibrary();
 
+  const { current: { containerId } } = MapOptions;
+
   return (
     <div className={ `block relative w-full h-full max-w-full max-h-full overflow-visible ${ theme.text }` }>
-      <div ref={ setRef } id={ containerId.current } className="w-full h-full relative"/>
+      <div ref={ setRef } id={ containerId } className="w-full h-full relative"/>
 
-      <div id={ `${ containerId.current }-box-select-blocker` }
+      <div id={ `${ containerId }-box-select-blocker` }
          className="absolute inset-0 z-50 pointer-events-none"/>
 
       { Modals.map(({ Component, key, startPos, ...rest }) => (
@@ -1049,7 +1079,7 @@ const AvlMap = allProps => {
 
         <div className="flex-1 relative">
           { [...activeLayers].reverse().map((l, i) => (
-              <l.RenderComponent key={ l.id }
+              <LayerRenderComponent key={ l.id }
                 layer={ l }
                 legend={ state.legend }
                 isActive={ get(state, ["activeLayers", l.id], true) }
