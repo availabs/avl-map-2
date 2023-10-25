@@ -600,7 +600,12 @@ const AvlMap = allProps => {
         legend,
         Protocols
       });
+      
     });
+    return () => {
+       maplibreMap.remove();
+        dispatch({ type: "reset-state" });
+    }
   }, []);
 
 // INITIALIZE LAYERS
