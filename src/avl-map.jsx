@@ -604,7 +604,7 @@ const AvlMap = allProps => {
     });
     return () => {
        maplibreMap.remove();
-        dispatch({ type: "reset-state" });
+        //dispatch({ type: "reset-state" });
     }
   }, []);
 
