@@ -118,8 +118,8 @@ export const LayerRenderComponent = props => {
 
     const removeLayers = () => {
       layers.forEach(layer => {
-        if (maplibreMap.getLayer(layer.id)) {
-          maplibreMap.removeLayer(layer.id);
+        if (maplibreMap?.getLayer(layer.id)) {
+          maplibreMap?.removeLayer(layer.id);
         }
       })
     }
