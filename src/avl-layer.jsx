@@ -131,7 +131,7 @@ export const LayerRenderComponent = props => {
     setTimeout(finish, LOADING_DURATION);
 
     return () => {
-      if (!maplibreMap) return;
+      if (!maplibreMap || !maplibreMap.loaded()) return;
 
       setResourcesLoaded(false);
       removeLayers();
@@ -218,7 +218,7 @@ export const LayerRenderComponent = props => {
     });
 
     return () => {
-      if (!maplibreMap) return;
+      if (!maplibreMap || !maplibreMap.loaded()) return;
 
       funcs.forEach(({ action, callback, layerId }) => {
         if (layerId === "maplibreMap") {
@@ -364,7 +364,7 @@ export const LayerRenderComponent = props => {
     }, []);
 
     return () => {
-      if (!maplibreMap) return;
+      if (!maplibreMap || !maplibreMap.loaded()) return;
 
       funcs.forEach(({ action, callback, layerId }) => {
         maplibreMap.off(action, layerId, callback);
@@ -492,7 +492,7 @@ export const LayerRenderComponent = props => {
     return () => {
       div.removeEventListener("mousedown", mousedown);
 
-      if (!maplibreMap) return;
+      if (!maplibreMap || !maplibreMap.loaded()) return;
 
       maplibreMap.boxZoom.enable();
     }

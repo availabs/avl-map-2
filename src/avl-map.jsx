@@ -221,7 +221,7 @@ const DefaultMapActions = {
 }
 
 const InitialState = {
-  // maplibreMap: null,
+  maplibreMap: null,
   moving: false,
   mapStyles: [],
   styleIndex: 0,
@@ -609,10 +609,9 @@ const AvlMap = allProps => {
     });
 
     maplibreMap.once("load", e => {
-      maplibreMapRef.current = maplibreMap;
       dispatch({
         type: "map-loaded",
-        // maplibreMap,
+        maplibreMap,
         mapStyles: styles,
         styleIndex,
         legend,
@@ -622,15 +621,14 @@ const AvlMap = allProps => {
     });
 
     return () => {
-      dispatch({ type: "map-removed" });
-      maplibreMapRef.current = undefined;
+      dispatch({ type: "map-removed" })
       maplibreMap.remove();
     };
   }, []);
 
 // INITIALIZE LAYERS
   React.useEffect(() => {
-    if (!maplibreMapRef.current) return;
+    if (!state.maplibreMap) return;
 
     const allLayers = [...layers, ...state.dynamicLayers];
 
@@ -669,7 +667,7 @@ const AvlMap = allProps => {
         initializedLayers: needsInitializing
       });
     }
-  }, [maplibreMapRef.current, layers, state.dynamicLayers, state.initializedLayers]);
+  }, [state.maplibreMap, layers, state.dynamicLayers, state.initializedLayers]);
 
 // SEND PROPS TO LAYERS
   React.useEffect(() => {
@@ -723,18 +721,18 @@ const AvlMap = allProps => {
   }, []);
 
   const setMapStyle = React.useCallback(styleIndex => {
-    if (!maplibreMapRef.current) return;
+    if (!state.maplibreMap) return;
     if (styleIndex === state.styleIndex) return;
     const mapStyle = state.mapStyles[styleIndex];
     if (!mapStyle) return;
-    maplibreMapRef.current.once("styledata", e => {
+    state.maplibreMap.once("styledata", e => {
       dispatch({
         type: "update-state",
         styleIndex
       })
     });
-    maplibreMapRef.current.setStyle(mapStyle.style);
-  }, [maplibreMapRef.current, state.mapStyles, state.styleIndex]);
+    state.maplibreMap.setStyle(mapStyle.style);
+  }, [state.maplibreMap, state.mapStyles, state.styleIndex]);
 
   const updateLegend = React.useCallback(update => {
     dispatch({
@@ -822,23 +820,23 @@ const AvlMap = allProps => {
   }, []);
 
   const goHome = React.useCallback(() => {
-    if (!maplibreMapRef.current) return;
+    if (!state.maplibreMap) return;
     const { center, zoom } = MapOptions.current;
-    maplibreMapRef.current.easeTo({
+    state.maplibreMap.easeTo({
       pitch: 0,
       bearing: 0,
       center,
       zoom
     });
-  }, [maplibreMapRef.current]);
+  }, [state.maplibreMap]);
   const resetView = React.useCallback((options = {}) => {
-    if (!maplibreMapRef.current) return;
-    maplibreMapRef.current.easeTo({
+    if (!state.maplibreMap) return;
+    state.maplibreMap.easeTo({
       pitch: 0,
       bearing: 0,
       ...options
     });
-  }, [maplibreMapRef.current]);
+  }, [state.maplibreMap]);
 
 // DETERMINE ACTIVE AND INACTIVE LAYERS
   const [activeLayers, inactiveLayers] = React.useMemo(() => {
@@ -855,14 +853,14 @@ const AvlMap = allProps => {
 
 // APPLY POINTER STYLE TO CURSOR ON HOVER
   React.useEffect(() => {
-    if (!maplibreMapRef.current) return;
+    if (!state.maplibreMap) return;
     if (state.hoverData.hovering) {
-      maplibreMapRef.current.getCanvas().style.cursor = 'pointer';
+      state.maplibreMap.getCanvas().style.cursor = 'pointer';
     }
     else {
-      maplibreMapRef.current.getCanvas().style.cursor = '';
+      state.maplibreMap.getCanvas().style.cursor = '';
     }
-  }, [maplibreMapRef.current, state.hoverData.hovering]);
+  }, [state.maplibreMap, state.hoverData.hovering]);
 
 // DETERMINE LOADING LAYERS
   const loadingLayers = React.useMemo(() => {
@@ -903,14 +901,14 @@ const AvlMap = allProps => {
   React.useEffect(() => {
     if (!isPinnable) return;
 
-    maplibreMapRef.current.on("click", pinHoverComp);
+    state.maplibreMap.on("click", pinHoverComp);
 
-    return () => { maplibreMapRef.current.off("click", pinHoverComp); }
-  }, [maplibreMapRef.current, pinHoverComp, isPinnable]);
+    return () => { state.maplibreMap.off("click", pinHoverComp); }
+  }, [state.maplibreMap, pinHoverComp, isPinnable]);
 
 // GET HOVER COMP DATA
   const { HoverComps, ...hoverData } = React.useMemo(() => {
-    if (!maplibreMapRef.current) {
+    if (!state.maplibreMap) {
       return { hovering: false };
     };
     const { data, ...rest } = state.hoverData;
@@ -966,9 +964,9 @@ const AvlMap = allProps => {
   }, [mapActions, activeLayers]);
 
   const projectLngLat = React.useCallback(lngLat => {
-    if (!maplibreMapRef.current) return { x: 0, y: 0 };
-    return maplibreMapRef.current.project(lngLat);
-  }, [maplibreMapRef.current]);
+    if (!state.maplibreMap) return { x: 0, y: 0 };
+    return state.maplibreMap.project(lngLat);
+  }, [state.maplibreMap]);
 
   const [ref, setRef] = React.useState(null);
   const size = useSetSize(ref);
@@ -1021,7 +1019,7 @@ const AvlMap = allProps => {
           <Modal key={ key } { ...rest }
             startPos={ startPos }
             legend={ state.legend }
-            maplibreMap={ maplibreMapRef.current }
+            maplibreMap={ state.maplibreMap }
             MapActions={ MapActions }
             activeLayers={ activeLayers }
             inactiveLayers={ inactiveLayers }
@@ -1038,7 +1036,7 @@ const AvlMap = allProps => {
           >
             <Component { ...rest }
               legend={ state.legend }
-              maplibreMap={ maplibreMapRef.current }
+              maplibreMap={ state.maplibreMap }
               MapActions={ MapActions }
               activeLayers={ activeLayers }
               inactiveLayers={ inactiveLayers }
@@ -1062,7 +1060,7 @@ const AvlMap = allProps => {
           <div className="h-full relative pr-4">
             <LeftSidebar { ...leftSidebarOptions }
               legend={ state.legend }
-              maplibreMap={ maplibreMapRef.current }
+              maplibreMap={ state.maplibreMap }
               MapActions={ MapActions }
               activeLayers={ activeLayers }
               inactiveLayers={ inactiveLayers }
@@ -1088,7 +1086,7 @@ const AvlMap = allProps => {
                 isVisible={ get(state, ["layerVisibility", l.id], true) }
                 isLoading={ Boolean(get(state, ["layersLoading", l.id, "loading"], false)) }
                 resourcesLoaded={ Boolean(get(state, ["resourcesLoaded", l.id], false)) }
-                maplibreMap={ maplibreMapRef.current }
+                maplibreMap={ state.maplibreMap }
                 updateHover={ updateHover }
                 containerId={ containerId.current }
                 MapActions={ MapActions }
@@ -1121,7 +1119,7 @@ const AvlMap = allProps => {
               { Actions.map(({ Component, ...action }, i) => (
                   <Component key={ i } { ...action }
                     legend={ state.legend }
-                    maplibreMap={ maplibreMapRef.current }
+                    maplibreMap={ state.maplibreMap }
                     MapActions={ MapActions }
                     activeLayers={ activeLayers }
                     inactiveLayers={ inactiveLayers }
@@ -1145,7 +1143,7 @@ const AvlMap = allProps => {
           <div className="h-full relative pl-4">
             <RightSidebar { ...rightSidebarOptions }
               legend={ state.legend }
-              maplibreMap={ maplibreMapRef.current }
+              maplibreMap={ state.maplibreMap }
               MapActions={ MapActions }
               activeLayers={ activeLayers }
               inactiveLayers={ inactiveLayers }
@@ -1175,7 +1173,7 @@ const AvlMap = allProps => {
                   legend={ state.legend }
                   layer={ layer }
                   data={ data }
-                  maplibreMap={ maplibreMapRef.current }
+                  maplibreMap={ state.maplibreMap }
                   MapActions={ MapActions }
                   activeLayers={ activeLayers }
                   inactiveLayers={ inactiveLayers }
@@ -1200,7 +1198,7 @@ const AvlMap = allProps => {
           { HoverComps.map(({ Component, layerId, ...rest }) =>
               <Component key={ layerId } { ...rest }
                 legend={ state.legend }
-                maplibreMap={ maplibreMapRef.current }
+                maplibreMap={ state.maplibreMap }
                 MapActions={ MapActions }
                 activeLayers={ activeLayers }
                 inactiveLayers={ inactiveLayers }
