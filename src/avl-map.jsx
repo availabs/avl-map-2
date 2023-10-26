@@ -567,8 +567,6 @@ const AvlMap = allProps => {
 
   const [state, dispatch] = React.useReducer(Reducer, InitialState);
 
-  const maplibreMapRef = React.useRef();
-
 // INITIALIZE MAP
   React.useEffect(() => {
     const {
