@@ -94,7 +94,6 @@ export const MultiLevelSelect = props => {
 
   const select = React.useCallback(option => {
     const value = valueAccessor(option);
-    console.log('select', onChange, value)
     setSearch("");
     if (isMulti) {
       if (Value.includes(value)) {
