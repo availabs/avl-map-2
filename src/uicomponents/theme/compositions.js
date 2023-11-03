@@ -1,6 +1,6 @@
 export const button = [
 // add base styles
-	{ $default: "rounded inline-flex items-center justify-center @transition disabled:cursor-not-allowed",
+	{ $default: "rounded inline-block @transition disabled:cursor-not-allowed",
 		Text: "rounded inline-flex items-center justify-center @transition disabled:cursor-not-allowed"
  	},
 // add bg colors
