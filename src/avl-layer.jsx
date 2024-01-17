@@ -521,24 +521,22 @@ export const LayerRenderComponent = props => {
 
   const [layerVisibilities, _setLayerVisibilities] = React.useState({});
 
-  // const setLayerVisibility = React.useCallback((layerId, visibility) => {
-  //   _setLayerVisibilities(prev => ({
-  //     ...prev,
-  //     [layerId]: visibility
-  //   }));
-  // }, []);
-
   const setLayerVisibility = React.useCallback((layerId, visibility) => {
-    _setLayerVisibilities(prev => {
-      const visibilities = {
-        ...prev,
-        [layerId]: visibility
-      }
-      if (!isEqual(prev, visibilities)) {
-        return visibilities;
-      }
-      return prev;
-    });
+    if (typeof layerId === "object") {
+      _setLayerVisibilities(prev => ({ ...prev, ...layerId }));
+    }
+    else {
+      _setLayerVisibilities(prev => {
+        const visibilities = {
+          ...prev,
+          [layerId]: visibility
+        }
+        if (!isEqual(prev, visibilities)) {
+          return visibilities;
+        }
+        return prev;
+      });
+    }
   }, []);
 
 // SET INITAL LAYER VISIBILITIES
