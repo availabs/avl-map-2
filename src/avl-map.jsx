@@ -411,7 +411,8 @@ const Reducer = (state, action) => {
       ];
 
       // RYAN todo -- this was attempting to address an issue with pinning datasets that have multiple geometry layers (AKA ACS)
-      const curGeometry = updatedPinnedComps[0]?.HoverComps[0]?.layer?.filters?.geometry?.activeValue;
+      //however, it is currently used so that those maps don't break when pinning (this code runs always even though its only used for the pinned geom borders)
+      const curGeometry = updatedPinnedComps[0]?.HoverComps[0]?.layer?.filters?.geometry?.value;
 
       const pinnedCompIds = updatedPinnedComps.map((pinnedComp) => {
         const activeGeoComp = pinnedComp.HoverComps.length > 1 ? pinnedComp.HoverComps.find((hoverComp) =>
