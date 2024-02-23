@@ -162,31 +162,34 @@ const Navigationcontrols = ({ MapActions, maplibreMap }) => {
 
   return (
     <div className={ `
-        flex flex-col cursor-pointer pointer-events-auto ${ theme.bg } rounded
+        flex flex-row cursor-pointer pointer-events-auto
       ` }
     >
+
+      <div onClick={ zoomOut }>
+        <span className={ `
+            fal fa-minus w-10 py-1 flex justify-center
+            ${ theme.textHighlightHover }
+          ` }/>
+      </div>
+      
       <div onClick={ zoomIn }>
         <span className={ `
-            fa-solid fa-plus w-10 py-1 flex justify-center
+            fal fa-plus w-10 py-1 flex justify-center
             ${ theme.textHighlightHover }
           ` }/>
       </div>
       <div onClick={ resetView }
         className={ `
-          border-y ${ theme.border } w-10 py-1
+          w-10 py-1
           flex justify-center
           ${ theme.textHighlightHover }
         ` }
       >
-        <span className={ `fa-solid fa-arrow-up` }
-          style={ { transform: `rotate(${ bearing }deg)` } }/>
+        <span className={ `fa fa-location-arrow faw` }
+          style={ { transform: `rotate(${ bearing-45}deg)` } }/>
       </div>
-      <div onClick={ zoomOut }>
-        <span className={ `
-            fa-solid fa-minus w-10 py-1 flex justify-center
-            ${ theme.textHighlightHover }
-          ` }/>
-      </div>
+      
     </div>
   )
 }
@@ -1112,8 +1115,8 @@ const AvlMap = allProps => {
         </div>
 
         { !Actions.length ? null :
-          <div className="h-full relative pl-4">
-            <div className="grid grid-cols-1 gap-4">
+          <div className="relative pl-4">
+            <div className="flex flex-col h-full justify-end flex-end">
               { Actions.map(({ Component, ...action }, i) => (
                   <Component key={ i } { ...action }
                     legend={ state.legend }
