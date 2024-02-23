@@ -25,6 +25,8 @@ const getNewId = () => `avl-thing-${ ++idCounter }`;
 const EmptyArray = [];
 const EmptyObject = {};
 
+const PIN_OUTLINE_LAYER_SUFFIX = 'pin_outline'
+
 export const DefaultStyles = [
   { name: "Dark",
     style: "https://api.maptiler.com/maps/dataviz-dark/style.json?key=mU28JQ6HchrQdneiq6k9"
@@ -239,6 +241,7 @@ const InitialState = {
     hovering: false
   },
   pinnedHoverComps: [],
+  pinnedHoverCompIds: [],
   filterUpdate: { layerId: null },
   layersLoading: {},
   legend: {
@@ -392,6 +395,7 @@ const Reducer = (state, action) => {
       const { lngLat, marker } = payload;
 
       const HoverComps = [...state.hoverData.data]
+        .filter(({ layerId }) => !layerId.includes(PIN_OUTLINE_LAYER_SUFFIX))
         .filter(({ isPinnable }) => isPinnable)
         .sort((a, b) => b.zIndex - a.zIndex);
 
@@ -403,22 +407,51 @@ const Reducer = (state, action) => {
           marker,
           HoverComps
         }
+
+        const updatedPinnedComps = [
+        ...state.pinnedHoverComps,
+        newPinned
+      ];
+
+      // RYAN todo -- this was attempting to address an issue with pinning datasets that have multiple geometry layers (AKA ACS)
+      //however, it is currently used so that those maps don't break when pinning (this code runs always even though its only used for the pinned geom borders)
+      const curGeometry = updatedPinnedComps[0]?.HoverComps[0]?.layer?.filters?.geometry?.value;
+
+      const pinnedCompIds = updatedPinnedComps.map((pinnedComp) => {
+        const activeGeoComp = pinnedComp.HoverComps.length > 1 ? pinnedComp.HoverComps.find((hoverComp) =>
+          hoverComp.data[1].includes(curGeometry)
+        ) : pinnedComp.HoverComps[0];
+
+        return activeGeoComp.data[2];
+      });
+
         return {
           ...state,
-          pinnedHoverComps: [
-            ...state.pinnedHoverComps,
-            newPinned
-          ]
+          pinnedHoverCompIds: pinnedCompIds,
+          pinnedHoverComps: updatedPinnedComps
         };
       }
       return state;
     }
     case "remove-pinned":
+      //remove markers, toggle feature state
+      const pinnedIdsToRemove = [];
+      state.pinnedHoverComps.forEach(phc => {
+        if (phc.id !== payload.id) { return }
+      
+        const dataId = phc.HoverComps[0].data[0]
+        pinnedIdsToRemove.push(dataId);
+      })
+
       return {
         ...state,
         pinnedHoverComps: state.pinnedHoverComps.filter(phc => {
           if (phc.id !== payload.id) return true;
           phc.marker.remove();
+          return false;
+        }),
+        pinnedHoverCompIds: state.pinnedHoverCompIds.filter(pinnedId => {
+          if (!pinnedIdsToRemove.includes(pinnedId.ogc_fid)) return true;
           return false;
         }),
       };
@@ -675,14 +708,15 @@ const AvlMap = allProps => {
     layers.forEach(l => {
       l.props = get(layerProps, l.id, {});
     })
-  }, [layers, layerProps]);
+  }, [layers, layerProps, state.pinnedHoverCompIds]);
 
 // SEND STATE TO LAYERS
   React.useEffect(() => {
     layers.forEach(l => {
       l.state = get(state, ["layerState", l.id], {});
+      l.state = {...l.state, pinnedHoverCompIds: state.pinnedHoverCompIds}
     })
-  }, [layers, state.layerState]);
+  }, [layers, state.layerState, state.pinnedHoverCompIds]);
 
 // CREATE MAP ACTIONS
   const createDynamicLayer = React.useCallback(layer => {
@@ -1196,7 +1230,7 @@ const AvlMap = allProps => {
 
       { !hoverData.hovering ? null :
         <HoverComponent { ...hoverData } { ...size } project={ projectLngLat }>
-          { HoverComps.map(({ Component, layerId, ...rest }) =>
+          { HoverComps.filter(({ layerId }) => !layerId.includes(PIN_OUTLINE_LAYER_SUFFIX)).map(({ Component, layerId, ...rest }) =>
               <Component key={ layerId } { ...rest }
                 legend={ state.legend }
                 maplibreMap={ state.maplibreMap }
