@@ -422,8 +422,8 @@ const Reducer = (state, action) => {
           hoverComp.data[1].includes(curGeometry)
         ) : pinnedComp.HoverComps[0];
 
-        return activeGeoComp.data[2];
-      });
+        return activeGeoComp?.data[2];
+      }).filter(id => id !== undefined);
 
         return {
           ...state,
