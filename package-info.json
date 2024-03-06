@@ -16,7 +16,7 @@
     "d3-format": "^3.1.0",
     "d3-scale": "^4.0.2",
     "fuse.js": "^6.6.2",
-    "lodash.get": "^4.4.2",
+    "lodash/get": "^4.4.2",
     "lodash.isequal": "^4.5.0",
     "maplibre-gl": "^3.1.0",
     "react": "^18.2.0",
