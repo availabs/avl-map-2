@@ -238,6 +238,9 @@ export const LayerRenderComponent = props => {
     const {
       layers = [],
       callback = DefaultCallback,
+      hoverEnter = null,
+      hoverMove = null,
+      hoverLeave = null,
       Component = DefaultHoverComp,
       property = null,
       filterFunc = null,
@@ -343,6 +346,10 @@ export const LayerRenderComponent = props => {
       });
     };
 
+    const callbackWrapper = func => {
+      return ({ point, features, lngLat }) => func(features, lngLat, point);
+    }
+
     const funcs = layers.reduce((a, c) => {
       let callback = mousemove.bind(layer, c);
       a.push({
@@ -359,6 +366,36 @@ export const LayerRenderComponent = props => {
         layerId: c
       });
       maplibreMap.on("mouseleave", c, callback);
+
+      if (typeof hoverEnter === "function") {
+        const callback = callbackWrapper(hoverEnter.bind(layer, layerId));
+        a.push({
+          action: "mouseenter",
+          callback,
+          layerId: c
+        });
+        maplibreMap.on("mouseenter", c, callback);
+      }
+
+      if (typeof hoverMove === "function") {
+        const callback = callbackWrapper(hoverMove.bind(layer, layerId));
+        a.push({
+          action: "mousemove",
+          callback,
+          layerId: c
+        });
+        maplibreMap.on("mousemove", c, callback);
+      }
+
+      if (typeof hoverLeave === "function") {
+        const callback = callbackWrapper(hoverLeave.bind(layer, layerId));
+        a.push({
+          action: "mouseleave",
+          callback,
+          layerId: c
+        });
+        maplibreMap.on("mouseleave", c, callback);
+      }
 
       return a;
     }, []);

@@ -45,7 +45,7 @@ export const MultiLevelSelect = props => {
     searchable = false,
     removable = true,
     InputContainer = DefaultInputContainer,
-    maxOptions = null,
+    maxOptions = Infinity,
     children
   } = props;
 
@@ -156,7 +156,6 @@ export const MultiLevelSelect = props => {
       className={ `relative cursor-pointer` }
       onClick={ toggleDropdown }
     >
-
       { isDropdown ? children :
         <ValueContainer placeholder={ placeholder }
           disabled={ disabled }
@@ -164,7 +163,6 @@ export const MultiLevelSelect = props => {
           remove={ remove }
           displayValues={ displayValues }/>
       }
-
       <div ref={ setInner }
         className={ `absolute w-full max-w-full ${ show ? "h-fit" : "hidden h-0" }` }
         style={ {
@@ -175,61 +173,56 @@ export const MultiLevelSelect = props => {
           paddingTop: "0.25rem"
         } }
       >
-        { !searchable || hasChildren || (options.length < 10) ? null :
-          <div className="w-full"
-            style={ {
-              bottom: xDir ? "100%" : null,
-              position: xDir ? "absolute" : "block"
-            } }
-            onClick={ stopPropagation }
-          >
-            <InputContainer>
-              <Input value={ search } onChange={ setSearch }
-                placeholder="search options..."/>
-            </InputContainer>
-          </div>
-        }
         { options.length ? null :
           <DisplayItem>
             No options available...
           </DisplayItem>
         }
-        <div className="w-full min-w-fit scrollbar-xs"
-          style={ {
-            maxHeight: hasChildren ? null : "20rem",
-            overflow: hasChildren ? null : "auto"
-          } }
-        >
-          { fuse(search).slice(0, maxOptions || Infinity).map((opt, i) => {
-              const Item = getItem(opt);
-              const value = valueAccessor(opt);
-              return (
-                <Dropdown key={ i }
-                  { ...props }
-                  options={ get(opt, "children", []) }
-                  xDirection={ 1 }
-                  zIndex={ zIndex + 5 }
-                  select={ select }
-                  Value={ Value }
-                >
-                  <Clickable disabled={ !hasValue(value) }
-                    select={ select }
-                    option={ opt }
-                  >
-                    <Item value={ value }
-                      active={ Value.includes(value) }
-                      hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
-                    >
-                      { displayAccessor(opt) }
-                    </Item>
-                  </Clickable>
-                </Dropdown>
-              )
-            })
+        <div className="w-full min-w-fit relative">
+          { !searchable || hasChildren || (options.length < 10) ? null :
+            <div className="w-full" onClick={ stopPropagation }>
+              <InputContainer>
+                <Input value={ search } onChange={ setSearch }
+                  placeholder="search options..."/>
+              </InputContainer>
+            </div>
           }
+          <div className="scrollbar-xs"
+            style={ {
+              maxHeight: hasChildren ? null : "20rem",
+              overflow: hasChildren ? null : "auto"
+            } }
+          >
+            { fuse(search).slice(0, maxOptions || Infinity).map((opt, i) => {
+                const Item = getItem(opt);
+                const value = valueAccessor(opt);
+                return (
+                  <Dropdown key={ i }
+                    { ...props }
+                    options={ get(opt, "children", []) }
+                    xDirection={ 1 }
+                    zIndex={ zIndex + 5 }
+                    select={ select }
+                    Value={ Value }
+                  >
+                    <Clickable disabled={ !hasValue(value) }
+                      select={ select }
+                      option={ opt }
+                    >
+                      <Item value={ value }
+                        active={ Value.includes(value) }
+                        hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
+                      >
+                        { displayAccessor(opt) }
+                      </Item>
+                    </Clickable>
+                  </Dropdown>
+                )
+              })
+            }
+          </div>
         </div>
       </div>
-
     </div>
   )
 }
@@ -246,7 +239,7 @@ const Dropdown = props => {
     DisplayItem = DefaultDisplayItem,
     searchable = false,
     InputContainer = DefaultInputContainer,
-    maxOptions = null,
+    maxOptions = Infinity,
     children
   } = props;
 
@@ -262,7 +255,10 @@ const Dropdown = props => {
   const [xDir, setXDirection] = React.useState(xDirection);
   const [topOffset, setTopOffset] = React.useState(0);
   React.useEffect(() => {
-    if (!inner) return;
+    if (!inner || !show) {
+      setTopOffset(0);
+      return;
+    }
     const rect = inner.getBoundingClientRect();
     const height = window.innerHeight;
     const width = window.innerWidth;
@@ -272,7 +268,7 @@ const Dropdown = props => {
     if ((rect.y + rect.height) > height) {
       setTopOffset(height - (rect.y + rect.height))
     }
-  }, [inner]);
+  }, [inner, show]);
 
   const hasChildren = React.useMemo(() => {
     return options.reduce((a, c) => a || Boolean(get(c, ["children", "length"], 0)), false)
@@ -317,12 +313,7 @@ const Dropdown = props => {
           right: xDir === -1 ? "100%" : null
         } }
       >
-        <div className="w-full min-w-fit scrollbar-xs"
-          style={ {
-            maxHeight: hasChildren ? null : "20rem",
-            overflow: hasChildren ? null : "auto"
-          } }
-        >
+        <div className="w-full min-w-fit relative">
           { !searchable || hasChildren || (options.length < 10) ? null :
             <div className="w-full"
               style={ {
@@ -331,13 +322,18 @@ const Dropdown = props => {
               } }
               onClick={ stopPropagation }
             >
-              <InputContainer className="rounded-t pt-2">
+              <InputContainer className="rounded-t">
                 <Input value={ search } onChange={ setSearch }
                   placeholder="search options..."/>
               </InputContainer>
             </div>
           }
-          <div className="w-fit">
+          <div className="scrollbar-xs"
+            style={ {
+              maxHeight: hasChildren ? null : "20rem",
+              overflow: hasChildren ? null : "auto"
+            } }
+          >
             { fuse(search).slice(0, maxOptions).map((opt, i) => {
                 const Item = getItem(opt);
                 const value = valueAccessor(opt);
@@ -442,7 +438,7 @@ const DefaultDisplayItem = ({ children, active, hasChildren }) => {
   return (
     <div
       className={ `
-        py-1 px-2 flex items-center text-left min-w-fit max-w-full whitespace-nowrap
+        py-1 px-2 flex items-center text-left min-w-fit w-full whitespace-nowrap
         ${ active ? theme.bgAccent3 : `${ theme.bgAccent2Hover } ${ theme.bgAccent1 }` }
       ` }
     >
