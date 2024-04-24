@@ -1109,6 +1109,7 @@ const AvlMap = allProps => {
               layerProps={ layerProps }
               layerState={ state.layerState }
               filterUpdate={ state.filterUpdate }
+              hideLoading={ props.hideLoading }
               layersLoading={ state.layersLoading }
               loadingLayers={ loadingLayers }
               resourcesLoaded={ state.resourcesLoaded }
@@ -1145,7 +1146,7 @@ const AvlMap = allProps => {
             ))
           }
           <div className="absolute bottom-0 left-0 grid grid-cols-1 gap-4">
-            { loadingLayers.map(layer => (
+            { !props.hideLoading && loadingLayers.map(layer => (
                 <LoadingIndicator key={ layer.id } layer={ layer }/>
               ))
             }
@@ -1168,6 +1169,7 @@ const AvlMap = allProps => {
                     layerProps={ layerProps }
                     layerState={ state.layerState }
                     filterUpdate={ state.filterUpdate }
+                    hideLoading = {props.hideLoading}
                     layersLoading={ state.layersLoading }
                     loadingLayers={ loadingLayers }
                     resourcesLoaded={ state.resourcesLoaded }
