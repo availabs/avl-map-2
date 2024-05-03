@@ -25,13 +25,17 @@ export const button = [
 		Text: "",
 	},
 // add hover
-	{ $default: "disabled:hover:bg-white @bgButtonHover @textContrastHover",
-		Primary: "disabled:hover:bg-white @bgPrimaryHover @textContrastHover",
-		Success: "disabled:hover:bg-white @bgSuccessHover @textContrastHover",
-		Danger: "disabled:hover:bg-white @bgDangerHover @textContrastHover",
-		Info: "disabled:hover:bg-white @bgInfoHover @textContrastHover",
-		Dark: "disabled:hover:bg-white @bgContrastHover @textContrastHover",
-		Text: "disabled:hover:bg-gray-100 @bgInputHover",
+	{ $default: "@bgButtonHover @textContrastHover",
+		Primary: "@bgPrimaryHover @textContrastHover",
+		Success: "@bgSuccessHover @textContrastHover",
+		Danger: "@bgDangerHover @textContrastHover",
+		Info: "@bgInfoHover @textContrastHover",
+		Dark: "@bgContrastHover @textContrastHover",
+		Text: "@bgInputHover",
+	},
+// add disabled effect
+	{ $default: "disabled:bg-opacity-50 disabled:hover:@bgInput disabled:hover:bg-opacity-50",
+		Text: "disabled:bg-opacity-50 disabled:hover:@bg disabled:hover:bg-opacity-50"
 	},
 // add sizing
 	{ $default: "@paddingBase @textBase",

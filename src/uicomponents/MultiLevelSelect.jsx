@@ -1,6 +1,7 @@
 import React from "react"
 
 import get from "lodash/get"
+import isEqual from "lodash/isEqual"
 
 import {
   Input,
@@ -15,18 +16,11 @@ const EmptyArray = [];
 const NoOp = () => {};
 const Identity = v => v;
 
+const DefaultValueComparator = (a, b) => isEqual(a, b);
+
 const stopPropagation = e => {
   e.stopPropagation();
 };
-
-const getDisplayValues = (options, value, dAccess, vAccess, result = []) => {
-  return options.reduce((a, c, i) => {
-    if (value.includes(vAccess(c))) {
-      a.push({ display: dAccess(c), value: vAccess(c), key: i });
-    }
-    return getDisplayValues(get(c, "children", []), value, dAccess, vAccess, a);
-  }, result);
-}
 
 export const MultiLevelSelect = props => {
   const {
@@ -36,6 +30,7 @@ export const MultiLevelSelect = props => {
     isMulti = false,
     displayAccessor = Identity,
     valueAccessor = Identity,
+    valueComparator = DefaultValueComparator,
     xDirection = 0,
     zIndex = 5,
     placeholder = "Select a value...",
@@ -92,11 +87,26 @@ export const MultiLevelSelect = props => {
 
   const [search, setSearch] = React.useState("");
 
+  const includes = React.useCallback(value => {
+    return Value.reduce((a, c) => {
+      return a || valueComparator(c, value);
+    }, false);
+  }, [Value, valueComparator]);
+
+  const getDisplayValues = React.useCallback((options, dAccess, vAccess, result = []) => {
+    return options.reduce((a, c, i) => {
+      if (includes(vAccess(c))) {
+        a.push({ display: dAccess(c), value: vAccess(c), key: i });
+      }
+      return getDisplayValues(get(c, "children", []), dAccess, vAccess, a);
+    }, result);
+  }, [includes]);
+
   const select = React.useCallback(option => {
     const value = valueAccessor(option);
     setSearch("");
     if (isMulti) {
-      if (Value.includes(value)) {
+      if (includes(value)) {
         const newValue = Value.filter(v => v !== value);
         if (removable || newValue.length) {
           onChange(newValue);
@@ -107,7 +117,7 @@ export const MultiLevelSelect = props => {
       }
     }
     else {
-      if (removable && Value.includes(value)) {
+      if (removable && includes(value)) {
         onChange(null);
       }
       else {
@@ -117,20 +127,20 @@ export const MultiLevelSelect = props => {
         setShow(false);
       }
     }
-  }, [Value, onChange, isMulti, removable, displayAccessor, valueAccessor]);
+  }, [Value, includes, onChange, isMulti, removable, displayAccessor, valueAccessor]);
 
   const remove = React.useCallback(value => {
-    if (isMulti && Value.includes(value)) {
-      onChange(Value.filter(v => v !== value));
+    if (isMulti && includes(value)) {
+      onChange(Value.filter(v => !isEqual(v, value)));
     }
-    else if (!isMulti && Value.includes(value)){
+    else if (!isMulti && includes(value)){
       onChange(null);
     }
-  }, [Value, onChange, isMulti]);
+  }, [Value, includes, onChange, isMulti]);
 
   const displayValues = React.useMemo(() => {
-    return getDisplayValues(options, Value, displayAccessor, valueAccessor);
-  }, [options, Value, displayAccessor, valueAccessor]);
+    return getDisplayValues(options, displayAccessor, valueAccessor);
+  }, [options, displayAccessor, valueAccessor, getDisplayValues]);
 
   const hasChildren = React.useMemo(() => {
     return options.reduce((a, c) => a || Boolean(get(c, ["children", "length"], 0)), false)
@@ -210,7 +220,7 @@ export const MultiLevelSelect = props => {
                       option={ opt }
                     >
                       <Item value={ value }
-                        active={ Value.includes(value) }
+                        active={ includes(value) }
                         hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
                       >
                         { displayAccessor(opt) }
