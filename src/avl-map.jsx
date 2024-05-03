@@ -170,25 +170,29 @@ const Navigationcontrols = ({ MapActions, maplibreMap }) => {
 
       <div onClick={ zoomOut }>
         <span className={ `
-            fal fa-minus w-10 py-1 flex justify-center
+            fa fa-minus fa-fw  py-1 w-8  flex items-center justify-center
+            text-slate-600
             ${ theme.textHighlightHover }
           ` }/>
       </div>
       
       <div onClick={ zoomIn }>
         <span className={ `
-            fal fa-plus w-10 py-1 flex justify-center
+            fa fa-plus fa-fw py-1 w-8  flex items-center  justify-center
+            text-slate-600
             ${ theme.textHighlightHover }
           ` }/>
       </div>
       <div onClick={ resetView }
         className={ `
-          w-10 py-1
+          w-8 py-1
           flex justify-center
+          items-center 
+          text-slate-600
           ${ theme.textHighlightHover }
         ` }
       >
-        <span className={ `fa fa-location-arrow faw` }
+        <span className={ `fa fa-location-arrow fa-fw` }
           style={ { transform: `rotate(${ bearing-45}deg)` } }/>
       </div>
       
@@ -1089,7 +1093,7 @@ const AvlMap = allProps => {
         ))
       }
 
-      <div className="flex absolute inset-0 pointer-events-none p-4">
+      <div className="flex absolute inset-0 pointer-events-none p-2">
 
         { !leftSidebar ? null :
           <div className="h-full relative pr-4">
@@ -1105,6 +1109,7 @@ const AvlMap = allProps => {
               layerProps={ layerProps }
               layerState={ state.layerState }
               filterUpdate={ state.filterUpdate }
+              hideLoading={ props.hideLoading }
               layersLoading={ state.layersLoading }
               loadingLayers={ loadingLayers }
               resourcesLoaded={ state.resourcesLoaded }
@@ -1141,7 +1146,7 @@ const AvlMap = allProps => {
             ))
           }
           <div className="absolute bottom-0 left-0 grid grid-cols-1 gap-4">
-            { loadingLayers.map(layer => (
+            { !props.hideLoading && loadingLayers.map(layer => (
                 <LoadingIndicator key={ layer.id } layer={ layer }/>
               ))
             }
@@ -1164,6 +1169,7 @@ const AvlMap = allProps => {
                     layerProps={ layerProps }
                     layerState={ state.layerState }
                     filterUpdate={ state.filterUpdate }
+                    hideLoading = {props.hideLoading}
                     layersLoading={ state.layersLoading }
                     loadingLayers={ loadingLayers }
                     resourcesLoaded={ state.resourcesLoaded }

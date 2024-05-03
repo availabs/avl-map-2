@@ -582,6 +582,7 @@ export const LayerRenderComponent = props => {
       a[c.id] = get(c, ["layout", "visibility"], "visible");
       return a;
     }, {});
+    // console.log('layer visibilities', layerVisibilities)
     _setLayerVisibilities(layerVisibilities);
   }, [layers]);
 
