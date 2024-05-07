@@ -106,11 +106,9 @@ export const MultiLevelSelect = props => {
     const value = valueAccessor(option);
     setSearch("");
     if (isMulti) {
-      if (includes(value)) {
-        const newValue = Value.filter(v => v !== value);
-        if (removable || newValue.length) {
-          onChange(newValue);
-        }
+      if (removable && includes(value)) {
+        const newValue = Value.filter(v => !valueComparator(v, value));
+        onChange(newValue);
       }
       else {
         onChange([...Value, value]);
@@ -127,7 +125,7 @@ export const MultiLevelSelect = props => {
         setShow(false);
       }
     }
-  }, [Value, includes, onChange, isMulti, removable, displayAccessor, valueAccessor]);
+  }, [Value, includes, onChange, isMulti, removable, displayAccessor, valueAccessor, valueComparator]);
 
   const remove = React.useCallback(value => {
     if (isMulti && includes(value)) {
@@ -155,11 +153,43 @@ export const MultiLevelSelect = props => {
     );
   }, [options, displayAccessor]);
 
+  const fused = React.useMemo(() => {
+    return fuse(search).slice(0, maxOptions);
+  }, [fuse, search, maxOptions]);
+
   const getItem = React.useCallback(opt => {
     return get(opt, "DisplayItem", DisplayItem);
   }, [DisplayItem]);
 
-  const fused = fuse(search);
+  const renderedOptions = React.useMemo(() => {
+    return fused.map((opt, i) => {
+        const Item = getItem(opt);
+        const value = valueAccessor(opt);
+        return (
+          <Dropdown key={ i }
+            { ...props }
+            options={ get(opt, "children", []) }
+            xDirection={ 1 }
+            zIndex={ zIndex + 5 }
+            select={ select }
+            Value={ Value }
+            includes={ includes }
+          >
+            <Clickable disabled={ !hasValue(value) }
+              select={ select }
+              option={ opt }
+            >
+              <Item value={ value }
+                active={ includes(value) }
+                hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
+              >
+                { displayAccessor(opt) }
+              </Item>
+            </Clickable>
+          </Dropdown>
+        )
+      })
+  }, [fused, getItem, displayAccessor, valueAccessor, includes]);
 
   return (
     <div ref={ setOutter }
@@ -203,33 +233,7 @@ export const MultiLevelSelect = props => {
               overflow: hasChildren ? null : "auto"
             } }
           >
-            { fuse(search).slice(0, maxOptions || Infinity).map((opt, i) => {
-                const Item = getItem(opt);
-                const value = valueAccessor(opt);
-                return (
-                  <Dropdown key={ i }
-                    { ...props }
-                    options={ get(opt, "children", []) }
-                    xDirection={ 1 }
-                    zIndex={ zIndex + 5 }
-                    select={ select }
-                    Value={ Value }
-                  >
-                    <Clickable disabled={ !hasValue(value) }
-                      select={ select }
-                      option={ opt }
-                    >
-                      <Item value={ value }
-                        active={ includes(value) }
-                        hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
-                      >
-                        { displayAccessor(opt) }
-                      </Item>
-                    </Clickable>
-                  </Dropdown>
-                )
-              })
-            }
+            { renderedOptions }
           </div>
         </div>
       </div>
@@ -250,6 +254,7 @@ const Dropdown = props => {
     searchable = false,
     InputContainer = DefaultInputContainer,
     maxOptions = Infinity,
+    includes,
     children
   } = props;
 
@@ -300,11 +305,39 @@ const Dropdown = props => {
     );
   }, [options, displayAccessor]);
 
+  const fused = React.useMemo(() => {
+    return fuse(search).slice(0, maxOptions);
+  }, [fuse, search, maxOptions]);
+
   const getItem = React.useCallback(opt => {
     return get(opt, "Item", DisplayItem);
   }, [DisplayItem]);
 
   const theme = useTheme();
+
+  const renderedOptions = React.useMemo(() => {
+    return fused.map((opt, i) => {
+        const Item = getItem(opt);
+        const value = valueAccessor(opt);
+        return (
+          <Dropdown key={ i }
+            { ...props }
+            options={ get(opt, "children", []) }
+            xDirection={ xDir }
+            zIndex={ zIndex + 5 }
+          >
+            <Clickable select={ doSelect } option={ opt }>
+              <Item value={ value }
+                active={ includes(value) }
+                hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
+              >
+                { displayAccessor(opt) }
+              </Item>
+            </Clickable>
+          </Dropdown>
+        )
+      })
+  }, [fused, getItem, displayAccessor, valueAccessor, includes]);
 
   return (
     <div className="relative cursor-pointer"
@@ -344,28 +377,7 @@ const Dropdown = props => {
               overflow: hasChildren ? null : "auto"
             } }
           >
-            { fuse(search).slice(0, maxOptions).map((opt, i) => {
-                const Item = getItem(opt);
-                const value = valueAccessor(opt);
-                return (
-                  <Dropdown key={ i }
-                    { ...props }
-                    options={ get(opt, "children", []) }
-                    xDirection={ xDir }
-                    zIndex={ zIndex + 5 }
-                  >
-                    <Clickable select={ doSelect } option={ opt }>
-                      <Item value={ value }
-                        active={ Value.includes(value) }
-                        hasChildren={ Boolean(get(opt, ["children", "length"], 0)) }
-                      >
-                        { displayAccessor(opt) }
-                      </Item>
-                    </Clickable>
-                  </Dropdown>
-                )
-              })
-            }
+            { renderedOptions }
           </div>
         </div>
       </div>
