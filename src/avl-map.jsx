@@ -19,6 +19,8 @@ import {
 import { useSetSize } from "./utils"
 import { useTheme } from "./uicomponents"
 
+import defaultMapIcon from "./utils/default-map.png"
+
 let idCounter = 0;
 const getNewId = () => `avl-thing-${ ++idCounter }`;
 
@@ -39,7 +41,7 @@ export const DefaultStyles = [
   },
   { name: "Satellite Streets",
     style: "https://api.maptiler.com/maps/hybrid/style.json?key=mU28JQ6HchrQdneiq6k9",
-  },
+  }
 ];
 
 const DefaultMapOptions = {
@@ -125,8 +127,11 @@ const ResetView = ({ MapActions, maplibreMap }) => {
     </ActionButton>
   )
 }
-const Navigationcontrols = ({ MapActions, maplibreMap }) => {
+
+const Navigationcontrols = ({ showLayerSelect, mapStyles, styleIndex, MapActions, maplibreMap, ...props }) => {
+  //console.log('navigationControl', mapStyles, styleIndex)
   const [bearing, setBearing] = React.useState(0);
+  const [styleSelect, showStyleSelect] = React.useState(false)
 
   React.useEffect(() => {
     if (!maplibreMap) return;
@@ -162,13 +167,32 @@ const Navigationcontrols = ({ MapActions, maplibreMap }) => {
 
   const theme = useTheme();
 
+  
+
+
+
   return (
     <div className={ `
         flex flex-row cursor-pointer pointer-events-auto
       ` }
     >
+      { (showLayerSelect && (mapStyles && mapStyles.length > 1)) && (
+        <div className='hover:bg-slate-100/50 h-10 w-10 flex items-center justify-center rounded relative'>
+          <div className='border border-slate-400 rounded shadow' onClick={() => showStyleSelect(!styleSelect)}><img className='w-8 h-8 rounded border' src={defaultMapIcon} /></div>
+          <div className={`w-36 bg-slate-100 absolute bottom-10 right-0 rounded ${styleSelect ? '' : 'hidden'}`}>
+            {mapStyles.map((style,i) => (<div key={i} className='flex items-center p-1 hover:bg-blue-100' onClick={() => {
+              showStyleSelect(false);
+              MapActions.setMapStyle(i)
+            }}>
+                <div className='h-8 w-8 ' > <img className='w-8 h-8 rounded ' src={defaultMapIcon} /> </div>
+                <div className='text-sm px-2'> {style.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-      <div onClick={ zoomOut }>
+      <div onClick={ zoomOut } className='hover:bg-slate-100/50 h-10 w-10 flex items-center justify-center rounded'>
         <span className={ `
             fa fa-minus fa-fw  py-1 w-8  flex items-center justify-center
             text-slate-600
@@ -176,24 +200,26 @@ const Navigationcontrols = ({ MapActions, maplibreMap }) => {
           ` }/>
       </div>
       
-      <div onClick={ zoomIn }>
+      <div onClick={ zoomIn } className='hover:bg-slate-100/50 h-10 w-10 flex items-center justify-center rounded'>
         <span className={ `
             fa fa-plus fa-fw py-1 w-8  flex items-center  justify-center
             text-slate-600
             ${ theme.textHighlightHover }
           ` }/>
       </div>
-      <div onClick={ resetView }
-        className={ `
-          w-8 py-1
-          flex justify-center
-          items-center 
-          text-slate-600
-          ${ theme.textHighlightHover }
-        ` }
-      >
-        <span className={ `fa fa-location-arrow fa-fw` }
-          style={ { transform: `rotate(${ bearing-45}deg)` } }/>
+      <div className='hover:bg-slate-100/50 h-10 w-10 flex items-center justify-center rounded'>
+        <div onClick={ resetView }
+          className={ `
+            w-8 py-1
+            flex justify-center
+            items-center 
+            text-slate-600
+            ${ theme.textHighlightHover }
+          ` }
+        >
+          <span className={ `fa fa-location-arrow fa-fw` }
+            style={ { transform: `rotate(${ bearing-45}deg)` } }/>
+        </div>
       </div>
       
     </div>
@@ -593,6 +619,8 @@ const AvlMap = allProps => {
     leftSidebar = EmptyObject,
     rightSidebar = EmptyObject,
     legend = EmptyObject,
+    styleIndex = 0,
+    showLayerSelect = false,
     mapActions = ["navigation-controls"],
     ...props
   } = allProps;
@@ -627,7 +655,7 @@ const AvlMap = allProps => {
       return a;
     }, {});
 
-    let styleIndex = 0;
+    //let  = 0;
 
     const maplibreMap = new maplibre.Map({
       container: containerId,
@@ -1165,6 +1193,7 @@ const AvlMap = allProps => {
                     inactiveLayers={ inactiveLayers }
                     mapStyles={ state.mapStyles }
                     styleIndex={ state.styleIndex }
+                    showLayerSelect={ showLayerSelect }
                     layerVisibility={ state.layerVisibility }
                     layerProps={ layerProps }
                     layerState={ state.layerState }
