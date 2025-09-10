@@ -622,6 +622,7 @@ const AvlMap = allProps => {
     styleIndex = 0,
     showLayerSelect = false,
     mapActions = ["navigation-controls"],
+    onMapStyleSelect = () => {},
     ...props
   } = allProps;
 
@@ -798,6 +799,9 @@ const AvlMap = allProps => {
         styleIndex
       })
     });
+    if (onMapStyleSelect) {
+      onMapStyleSelect(mapStyle);
+    }
     state.maplibreMap.setStyle(mapStyle.style);
   }, [state.maplibreMap, state.mapStyles, state.styleIndex]);
 
